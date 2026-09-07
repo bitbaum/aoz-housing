@@ -79,6 +79,21 @@ interface ActionDashboardProps {
     unitCode: string | null
     daysOverdue: number
   }[]
+  /**
+   * Insurances and permits running out, most urgent first.
+   *
+   * On the DASHBOARD and not only on /approvals because this is the surface
+   * people land on, and a reminder one click away is available rather than
+   * delivered. Email is not an option here: STAFF_EMAIL_RECIPIENTS is unset on
+   * the live box, so notifyStaff() sends nothing.
+   */
+  expiringFacts: {
+    id: string
+    kind: string
+    name: string
+    label: string
+    daysLeft: number
+  }[]
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -141,6 +156,7 @@ export function ActionDashboard({
   volunteeringQueue,
   waitingThreads,
   overdueFollowUps,
+  expiringFacts,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -231,6 +247,9 @@ export function ActionDashboard({
     // A review date that has passed is the ladder failing quietly: the whole
     // mechanism is somebody coming back on the day they said they would.
     overdueFollowUps.length +
+    // An insurance about to lapse is work whether or not anyone has filed it
+    // as such. Counted, so a day with one is not a quiet day.
+    expiringFacts.length +
     // Sandra's rows count exactly as Simon's do. While they did not, her
     // dashboard could only ever resolve to `quiet` — every term above needs a
     // permission she does not hold, and her caseload was never fetched.
@@ -436,6 +455,30 @@ export function ActionDashboard({
                   href: `/incidents/${row.id}`,
                 }))}
                 allHref="/incidents?status=open"
+              />
+            )}
+
+            {/* An insurance or permit running out. This is the tile that
+                answers the complaint the whole feature came from: extending an
+                insurance every six months meant writing to your Betreuerin,
+                because nothing in the product knew the date. Now it does, and
+                it says so where she already looks. */}
+            {expiringFacts.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileRenewalsDue}
+                count={expiringFacts.length}
+                description={DASHBOARD_LABELS.tileRenewalsAction}
+                href="/approvals"
+                urgency={urgencyForOpenCount(expiringFacts.length)}
+                items={expiringFacts.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
+                  label: row.name,
+                  sublabel:
+                    row.daysLeft < 0
+                      ? DASHBOARD_LABELS.tileRenewalExpired(Math.abs(row.daysLeft))
+                      : DASHBOARD_LABELS.tileRenewalDue(row.daysLeft),
+                  href: '/approvals',
+                }))}
+                allHref="/approvals"
               />
             )}
 

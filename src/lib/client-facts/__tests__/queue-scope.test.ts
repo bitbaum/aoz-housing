@@ -58,10 +58,15 @@ describe('who holds the permission', () => {
 
 describe('the page narrows in the query, not in the markup', () => {
   it('passes the viewer scope and own seat to the queue', () => {
+    // Asserted as "derives the seat AND passes it", not as one literal call
+    // shape: the seat is now computed once and shared with the renewals list,
+    // and a gate that pins formatting rather than behaviour fails on a
+    // refactor that changed nothing it cares about.
     const page = codeOf('src/app/(admin)/approvals/page.tsx')
     expect(page).toMatch(/pendingFactQueue\(/)
     expect(page).toMatch(/scope: viewer\.scope/)
-    expect(page).toMatch(/ownDomain: ownSeat\(/)
+    expect(page).toMatch(/ownSeat\(viewer\.role\)/)
+    expect(page).toMatch(/ownDomain:/)
   })
 
   it('asks the policy which kinds to query at all', () => {

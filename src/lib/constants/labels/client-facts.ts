@@ -17,6 +17,12 @@ export const CLIENT_FACT_LABELS = {
   queueEmpty: 'Nichts offen.',
   queueEmptyHint: 'Neue Angaben von Klient*innen erscheinen hier.',
 
+  // Renewals sit ABOVE the queue: a lapsing insurance costs someone their
+  // cover, which outranks reading an entry from last week.
+  renewalsTitle: 'Läuft demnächst ab',
+  renewalsHint:
+    'Krankenversicherungen und Ausweise, die in den nächsten 60 Tagen ablaufen oder bereits abgelaufen sind.',
+
   kinds: {
     INSURANCE: 'Krankenversicherung',
     HEALTH_CONTACT: 'Gesundheitsfachperson',

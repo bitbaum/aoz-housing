@@ -34,6 +34,9 @@ import { buildVolunteeringQueue } from '@/lib/volunteering/queue'
 import { staffInbox } from '@/lib/messaging/queries'
 import { getIncidentsNeedingFollowUp } from '@/lib/actions/incidents'
 import { STAFF_ROLE_CARE_DOMAIN, roleHasCaseload } from '@/lib/config/care'
+import { hasPermission } from '@/lib/auth/role-policy'
+import { mayReadFact } from '@/lib/client-facts/policy'
+import { expiringFacts } from '@/lib/client-facts/renewals'
 import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
@@ -334,6 +337,29 @@ export default async function AdminDashboard() {
     daysOverdue: row.nextFollowUpDate ? daysSinceCeil(row.nextFollowUpDate) : 0,
   }))
 
+  /**
+   * Insurances and permits running out — the tile this whole feature exists
+   * for. Filtered by the SAME per-kind rule the approvals queue uses, so a
+   * Jobcoach sees permits and never an insurance, and somebody without
+   * `clientFacts:read` sees none of it at all.
+   */
+  const expiringRenewals = hasPermission(viewer, 'clientFacts:read')
+    ? (await expiringFacts(new Date()))
+        .filter((fact) =>
+          mayReadFact(fact.kind, {
+            scope: viewer.scope,
+            seatsForClient: viewerSeat ? [viewerSeat] : [],
+          }),
+        )
+        .map((fact) => ({
+          id: fact.id,
+          kind: fact.kind,
+          name: residentName(fact.resident),
+          label: fact.label,
+          daysLeft: fact.daysLeft,
+        }))
+    : []
+
   const caseloadClients = jobCaseload.map(({ resident }) => ({
     residentId: resident.id,
     name: residentName(resident),
@@ -551,6 +577,7 @@ export default async function AdminDashboard() {
       volunteeringQueue={volunteeringQueue}
       waitingThreads={waitingThreads}
       overdueFollowUps={overdueFollowUps}
+      expiringFacts={expiringRenewals}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}
