@@ -211,17 +211,16 @@ export async function deleteClientFact(
 
   const table = TABLES[kind]
   try {
-    const owned = await db.query[
-      kind === 'INSURANCE'
-        ? 'clientInsurance'
-        : kind === 'HEALTH_CONTACT'
-          ? 'clientHealthContact'
-          : 'clientPermit'
-    ].findFirst({
-      where: and(eq(table.id, id), eq(table.residentId, me.id)),
-      columns: { id: true },
-    })
-    if (!owned) return failure(L.errors.notYours)
+    // A plain select rather than `db.query[<computed key>]`: the relational
+    // builders are three different generic signatures, so indexing them by a
+    // runtime string gives a union TypeScript cannot call. The ownership check
+    // is the point here, and it reads the same against any of the three.
+    const owned = await db
+      .select({ id: table.id })
+      .from(table)
+      .where(and(eq(table.id, id), eq(table.residentId, me.id)))
+      .limit(1)
+    if (owned.length === 0) return failure(L.errors.notYours)
     await db.delete(table).where(eq(table.id, id))
   } catch (error) {
     logger.errorWithCause('Deleting client fact failed', error, { residentId: me.id, kind })

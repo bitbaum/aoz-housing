@@ -472,6 +472,7 @@ export interface PortalNavItem {
     | 'opportunities'
     | 'marketplace'
     | 'events'
+    | 'documents'
   icon: keyof typeof NAV_ICONS
   primary?: boolean
   tab?: 1 | 2 | 3 | 4
