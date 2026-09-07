@@ -220,7 +220,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     portalTitleKey: 'portal.title',
     tagline: 'Integrationsplattform',
     metaDescription:
-      'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
+      'Wohnstabilität sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
     orgName: 'AOZ',
     features: AOZ_FEATURES,
   },
@@ -239,7 +239,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     portalTitleKey: 'portal.title',
     tagline: 'Integrationsplattform',
     metaDescription:
-      'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
+      'Wohnstabilität sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
     orgName: 'AOZH',
     features: AOZ_FEATURES,
   },

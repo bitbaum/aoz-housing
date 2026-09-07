@@ -139,10 +139,10 @@ const PLACEMENT_COPY: MarketingCopy = {
   ethicsEyebrow: 'Limites',
   ethicsTitle: 'Ce que ce logiciel refuse de savoir sur les personnes.',
   ethicsBody:
-    'Le système sert des personnes en situation de vulnérabilité. Il n’enregistre que ce qui est nécessaire à la vie commune — et ce qui n’est pas enregistré ne peut pas non plus être utilisé contre quelqu’un.',
+    'Le système sert des personnes en situation de vulnérabilité. Il n’enregistre que ce dont l’accompagnement a réellement besoin. Les client*es saisissent elles-mêmes le type de permis et sa date d’expiration si elles le souhaitent — ces informations leur appartiennent, servent à rappeler une échéance et n’alimentent jamais une attribution, une évaluation ou une statistique. Ce qui n’est pas enregistré ne peut pas non plus être utilisé contre quelqu’un.',
   neverTracked: [
     'Diagnostics médicaux',
-    'Statut de séjour ou détails du dossier',
+    'Détails du dossier : procédure, étape, décision',
     'Religion et conviction politique',
     'Histoire personnelle sans lien avec le logement',
   ],
@@ -287,7 +287,7 @@ const HOUSEHOLD_COPY: MarketingCopy = {
     'Par défaut, vous n’avez même pas de nom dans l’application — votre code suffit. Nom, photo et texte sont facultatifs, et les photos ne sont visibles que par vous et par les personnes avec qui vous vivez.',
   neverTracked: [
     'Diagnostics médicaux',
-    'Statut de séjour ou détails du dossier',
+    'Détails du dossier : procédure, étape, décision',
     'Religion et conviction politique',
     'Histoire personnelle sans lien avec le logement',
   ],

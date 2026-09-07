@@ -14,7 +14,7 @@ research-backed factors — but housing is the beginning, not the whole picture.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
-[![Vitest](https://img.shields.io/badge/Tests-3650%20unit-green.svg)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-4065%20unit-green.svg)](https://vitest.dev/)
 [![Playwright](https://img.shields.io/badge/E2E-201%20tests-green.svg)](https://playwright.dev/)
 
 ## What It Does
@@ -57,14 +57,22 @@ Housing placement for refugees carries real power over real lives. The algorithm
 ### What We Never Track
 
 - Medical diagnoses
-- Immigration status or case details
+- Asylum case details — the procedure, its stage, the decision, the grounds
 - Political or religious beliefs
-- Personal history beyond housing relevance
+- Personal history beyond what the support work needs
 - Any factor that could enable discrimination
 
-> "Collect minimum data. Never track immigration status, religion, or medical diagnoses."
+> "Collect minimum data. Never track religion, politics, medical diagnoses, or asylum case details."
 
-This is not a disclaimer. It is a design constraint enforced in code. If a factor cannot be justified by direct housing relevance, it does not enter the system.
+This is not a disclaimer. It is a design constraint enforced in code.
+
+**One thing a client may keep about themselves.** Health insurance, the health
+professionals they see, and their permit — type and expiry only. Those exist
+because extending an insurance every six months otherwise meant messaging your
+Betreuer\*in and waiting. What makes them consistent with the list above is a
+mechanism rather than a promise: they are unreadable from `lib/compatibility`,
+`lib/analytics` and `lib/export`, so no placement, score, ranking or statistic
+can see them, and a test fails if that stops being true.
 
 ---
 
@@ -142,7 +150,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 | Styling | Tailwind CSS (mobile-first) |
 | Validation | Zod |
 | Auth | JWT sessions (bcryptjs + jose) |
-| Testing | Vitest (3650 unit) + Playwright (201 E2E) |
+| Testing | Vitest (4065 unit) + Playwright (201 E2E) |
 | CI/CD | GitHub Actions |
 
 ---
@@ -182,7 +190,7 @@ pnpm dev
 
 Testing is not an afterthought. The compatibility algorithm makes placement decisions that affect people's daily lives. Every scoring path, every threshold boundary, every conflict classification is tested.
 
-### Unit Tests: 3650 passed (CI 2026-09-02, Vitest)
+### Unit Tests: 4065 passed in 240 files (verified 2026-09-07, Vitest)
 
 | Area | Suites | What They Cover |
 |------|--------|-----------------|
@@ -227,9 +235,9 @@ src/
   components/             # UI components (mobile-first)
 src/lib/db/
   schema.ts               # Single source of truth for data model (drizzle/ holds its SQL migrations)
+src/**/__tests__/         # 4065 unit tests, colocated with the code (Vitest)
 tests/
-  unit/                   # 3650 unit tests (Vitest; CI 2026-09-02)
-  e2e/                    # 201 Playwright tests (CI 2026-09-02)
+  *.spec.ts               # 201 Playwright E2E tests
 .github/
   workflows/ci.yml        # Lint, test, build, E2E pipeline
 ```

@@ -149,10 +149,10 @@ const PLACEMENT_COPY: MarketingCopy = {
   ethicsEyebrow: 'Grenzen',
   ethicsTitle: 'Was diese Software über Menschen nicht wissen will.',
   ethicsBody:
-    'Das System dient Menschen in einer verletzlichen Lage. Erfasst wird ausschliesslich, was fürs Zusammenleben nötig ist — und was nicht erfasst wird, lässt sich auch nicht gegen jemanden verwenden.',
+    'Das System dient Menschen in einer verletzlichen Lage. Erfasst wird nur, was die Begleitung wirklich braucht. Ausweisart und Ablaufdatum tragen Klient*innen selbst ein, wenn sie wollen — diese Angaben gehören ihnen, dienen der Erinnerung an eine Frist und fliessen nie in eine Zuteilung, eine Bewertung oder eine Statistik ein. Was nicht erfasst wird, lässt sich auch nicht gegen jemanden verwenden.',
   neverTracked: [
     'Medizinische Diagnosen',
-    'Aufenthaltsstatus oder Dossierdetails',
+    'Dossierdetails: Verfahren, Stand, Entscheid',
     'Religion und politische Überzeugung',
     'Persönliche Geschichte ohne Wohnbezug',
   ],
@@ -298,7 +298,7 @@ const HOUSEHOLD_COPY: MarketingCopy = {
     'Standardmässig habt ihr nicht einmal einen Namen in der App — euer Code genügt. Name, Foto und Text sind freiwillig, und Fotos sehen nur ihr und eure Mitbewohnenden.',
   neverTracked: [
     'Medizinische Diagnosen',
-    'Aufenthaltsstatus oder Dossierdetails',
+    'Dossierdetails: Verfahren, Stand, Entscheid',
     'Religion und politische Überzeugung',
     'Persönliche Geschichte ohne Wohnbezug',
   ],
