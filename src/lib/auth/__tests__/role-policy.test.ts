@@ -73,7 +73,14 @@ describe('role policy smoke checks', () => {
     // 26 since `messages:read` was named. It rode on nothing at all — both
     // message surfaces were ungated, so every staff member could read every
     // resident conversation. Naming it is what makes NOT holding it sayable.
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(26)
+    //
+    // 27 since `clientFacts:read` was named, for the queue of admin facts
+    // clients enter themselves. It could have ridden on `residents:read` —
+    // which all four care roles hold, making it a check nobody fails, the
+    // exact error the message surfaces shipped with. Naming it is what lets
+    // Liegenschaften NOT hold it.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(27)
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('clientFacts:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('messages:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('ai:assist')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:read')

@@ -693,4 +693,57 @@ export const ru: Dictionary = {
   'opportunities.stageStarted': 'Начато',
   'opportunities.stageEnded': 'Завершено',
   'opportunities.stageDeclined': 'Отклонено',
+
+  'nav.documents': 'Мои документы',
+  'documents.title': 'Мои документы',
+  'documents.intro':
+    'Здесь ты сам вносишь то, о чём иначе пришлось бы писать своему сопровождению. Всё добровольно, и ты можешь в любой момент это изменить или удалить.',
+  'documents.privacy':
+    'Эти данные видишь только ты и специалисты, которые тебя сопровождают. Они никогда не влияют на то, какое жильё тебе предложат.',
+  'documents.statusPending': 'Ещё не проверено',
+  'documents.statusConfirmed': 'Просмотрено сопровождением',
+  'documents.statusRejected': 'Пожалуйста, исправь',
+  'documents.confirmMeaning':
+    'Просмотрено означает, что специалист посмотрел эту запись. Это не значит, что её проверили в страховой компании или в органах власти.',
+  'documents.staffNote': 'Ответ сопровождения',
+  'documents.add': 'Добавить',
+  'documents.edit': 'Изменить',
+  'documents.delete': 'Удалить',
+  'documents.save': 'Сохранить',
+  'documents.cancel': 'Отмена',
+  'documents.saved': 'Сохранено.',
+
+  'documents.insurance': 'Медицинское страхование',
+  'documents.insuranceEmpty': 'Страховая компания ещё не указана.',
+  'documents.insurerName': 'Страховая компания',
+  'documents.policyNumber': 'Номер полиса',
+  'documents.validUntil': 'Действует до',
+  'documents.validUntilHint': 'Если укажешь дату, мы напомним тебе заранее.',
+
+  'documents.healthContacts': 'Медицинские специалисты',
+  'documents.healthContactsEmpty': 'Пока никого не добавлено.',
+  'documents.healthContactsHint':
+    'Например, твой стоматолог или семейный врач — чтобы ты и сопровождение знали, кому звонить.',
+  'documents.contactName': 'Имя',
+  'documents.contactProfession': 'Специальность',
+  'documents.contactProfessionHint': 'Например стоматолог, семейный врач, физиотерапия',
+  'documents.contactPhone': 'Телефон',
+  'documents.contactAddress': 'Адрес',
+  'documents.contactNote': 'Примечание',
+
+  'documents.permit': 'Статус пребывания',
+  'documents.permitHint': 'Только вид разрешения и срок его действия. Ничего о твоём деле.',
+  'documents.permitEmpty': 'Пока ничего не указано.',
+  'documents.permitType': 'Разрешение',
+  'documents.permitN': 'Разрешение N (проситель убежища)',
+  'documents.permitF': 'Разрешение F (временно принятый)',
+  'documents.permitB': 'Разрешение B (вид на жительство)',
+  'documents.permitC': 'Разрешение C (постоянный вид на жительство)',
+  'documents.permitS': 'Разрешение S (статус защиты)',
+  'documents.permitOther': 'Другое разрешение',
+  'documents.permitUnspecified': 'Не указано',
+
+  'documents.renewalDue': 'Скоро истекает',
+  'documents.renewalExpired': 'Срок истёк',
+  'documents.renewalNone': 'Дата не указана',
 }

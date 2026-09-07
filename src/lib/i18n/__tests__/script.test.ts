@@ -70,6 +70,27 @@ const ALLOWED: Record<LocaleId, Range[]> = {
   ti: [...SHARED, ...ETHIOPIC, ...LATIN],
 }
 
+/**
+ * Keys whose value carries an IDENTIFIER rather than a word.
+ *
+ * A Swiss permit is called "Ausweis N" and the letter is printed on the card.
+ * A Ukrainian reader looking for their F permit has to see F, not Ф —
+ * transliterating an identifier sends somebody to look for a document that
+ * does not exist, which is worse than leaving it untranslated.
+ *
+ * Deliberately a NAMED LIST rather than adding Latin to the Cyrillic locales
+ * wholesale: uk and ru are precisely the dictionaries where one stray Latin
+ * glyph is most plausible and least visible, and widening the rule to admit
+ * five permit letters would stop catching it everywhere else.
+ */
+const IDENTIFIER_KEYS = new Set<MessageKey>([
+  'documents.permitN',
+  'documents.permitF',
+  'documents.permitB',
+  'documents.permitC',
+  'documents.permitS',
+])
+
 /** The characters in `value` that this locale has no business containing. */
 function foreignCharacters(value: string, allowed: Range[]): string[] {
   return Array.from(value).filter((char) => {
@@ -87,7 +108,13 @@ describe('each dictionary is written in its own script', () => {
       .filter(
         (entry): entry is { key: MessageKey; value: string } => typeof entry.value === 'string',
       )
-      .map(({ key, value }) => ({ key, foreign: foreignCharacters(value, ALLOWED[id]) }))
+      .map(({ key, value }) => ({
+        key,
+        foreign: foreignCharacters(
+          value,
+          IDENTIFIER_KEYS.has(key) ? [...ALLOWED[id], ...LATIN] : ALLOWED[id],
+        ),
+      }))
       .filter(({ foreign }) => foreign.length > 0)
       .map(({ key, foreign }) => `${key}: ${foreign.join('')}`)
 
@@ -109,6 +136,16 @@ describe('each dictionary is written in its own script', () => {
     expect(foreignCharacters('Türkçe çıkış', ALLOWED.tr)).toEqual([])
     expect(foreignCharacters('Мої звернення', ALLOWED.uk)).toEqual([])
     expect(foreignCharacters('اتصل بالرقم 112', ALLOWED.ar)).toEqual([])
+  })
+
+  it('lets a permit letter stay Latin, and only a permit letter', () => {
+    // The exception must not become a hole. A Cyrillic dictionary may carry
+    // "Дозвіл F" under a permit key, and must still be caught if a Latin word
+    // appears anywhere else.
+    expect(IDENTIFIER_KEYS.has('documents.permitF')).toBe(true)
+    expect(IDENTIFIER_KEYS.has('documents.permit')).toBe(false)
+    expect(foreignCharacters('Дозвіл F', [...ALLOWED.uk, ...LATIN])).toEqual([])
+    expect(foreignCharacters('Дозвіл settings', ALLOWED.uk)).not.toEqual([])
   })
 
   it('covers every declared locale, so a new language cannot skip the check', () => {

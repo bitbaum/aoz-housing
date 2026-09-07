@@ -176,6 +176,16 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     items: [
       // "Alle …", not "Klient*innen" again: an item whose label repeats its own
       // group reads as a broken menu, and gives the reader nothing to choose by.
+      // Angaben Klient*innen have entered themselves, awaiting a first look.
+      // A noun, not a verb: the group is about the people, and what sits here
+      // is their entries — the queue survives whatever we later do with them.
+      {
+        href: '/approvals',
+        icon: 'clipboard',
+        label: 'Freigaben',
+        desc: 'Selbst erfasste Angaben prüfen',
+        permission: 'clientFacts:read',
+      },
       {
         href: '/residents',
         icon: 'users',
@@ -462,6 +472,7 @@ export interface PortalNavItem {
     | 'opportunities'
     | 'marketplace'
     | 'events'
+    | 'documents'
   icon: keyof typeof NAV_ICONS
   primary?: boolean
   tab?: 1 | 2 | 3 | 4
@@ -588,6 +599,10 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'integration' },
   // Mein Konto — me and this app.
   { href: '/portal/profile', labelKey: 'profile', icon: 'settings', group: 'account' },
+  // The facts you used to have to ask your Betreuerin for. Filed under the
+  // group about YOU rather than under Wohnen: an insurance and a permit belong
+  // to the person and follow them between flats.
+  { href: '/portal/unterlagen', labelKey: 'documents', icon: 'clipboard', group: 'account' },
   { href: '/portal/preferences', labelKey: 'preferences', icon: 'wrench', group: 'account' },
   { href: '/portal/help', labelKey: 'help', icon: 'help', aozTab: 4, group: 'account' },
 ]

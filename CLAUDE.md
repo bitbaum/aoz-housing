@@ -1085,10 +1085,69 @@ Some incompatibilities are **blocking** (cannot place together):
 ### What We NEVER Track
 
 - Medical diagnoses (only functional needs like "needs ground floor")
-- Immigration status or case details
+- Asylum case details — the procedure, its stage, the decision, the grounds
 - Political or religious beliefs
 - Personal history beyond housing relevance
 - Anything that could be used for discrimination
+
+### What a CLIENT may keep about themselves (and the rule that makes it safe)
+
+⚠️ **This section used to read "Immigration status or case details" as one
+absolute line, and that was too blunt to survive contact with the product.**
+Extending a health insurance every six months, or getting a dentist
+appointment, meant writing to your Betreuerin and waiting — the facts lived in
+her inbox rather than in the profile of the person they belong to.
+
+The distinction that holds is between **what is wrong with you** and **who you
+call and when a form is due.** A diagnosis is a judgment about a person and
+stays forbidden outright; no column in `ClientInsurance`, `ClientHealthContact`
+or `ClientPermit` can hold one. An insurer, a policy number, a dentist's phone
+number, a permit category and its expiry are administrative facts a person
+already carries in their wallet.
+
+**Permit is TYPE AND EXPIRY ONLY.** No case number, no decision history, no
+grounds, no procedural stage. Those remain "case details" above.
+
+**What makes this consistent rather than an exception is the mechanism.** The
+harm the rule is about runs through a field that a decision can see. So these
+tables are readable by a person looking at one client, and by **nothing that
+ranks, scores, sorts or aggregates**:
+
+| Forbidden to touch them | Why |
+|---|---|
+| `lib/compatibility/**` | decides who lives with whom |
+| `lib/analytics/**` | the numbers the pilot is judged on |
+| `lib/export/**` | a spreadsheet leaves the product and stops being governed |
+
+Enforced by `src/lib/client-facts/__tests__/never-an-input-to-a-decision.test.ts`,
+which scans those directories for the table names and fails with the reason
+attached. "We promise not to" is not a mechanism. If someone later joins
+`ClientPermit` into the matching query — the most plausible way this goes
+wrong, because permit type correlates with things a matcher would love — the
+build goes red.
+
+**Visibility is per fact, never per person** (`lib/client-facts/policy.ts`):
+
+| | Betreuung | Sozialarbeit | Jobcoach | Liegenschaften |
+|---|---|---|---|---|
+| Krankenversicherung | ✓ | ✓ | — | — |
+| Gesundheitsfachpersonen | ✓ | ✓ | — | — |
+| Aufenthaltsstatus | ✓ | ✓ | ✓ | — |
+
+The Jobcoach holds the permit and only the permit: which work is lawful is his
+job, and `permitRequirement` on an opportunity is already a claim about exactly
+this. He has no business knowing which doctors somebody visits. A single "the
+care team may see the client's facts" grant reads as reasonable and hands him
+both — which is why `clientFacts:read` is its own permission and not
+`residents:read`, a check all four care roles pass.
+
+**"Bestätigt" means SEEN, never TRUE.** Franziska cannot ring the insurer to
+verify a policy number. Every label says *geprüft* / *gesehen*, never *gültig*,
+and both surfaces spell the difference out. A product that implied more would
+be asserting something about a person's insurance or permit that it cannot
+know — the same failure as an opportunity defaulting to «Keine Bewilligung
+nötig». Editing a confirmed fact returns it to PENDING, because the check was
+about the values that were there.
 
 ### Audit Trail
 

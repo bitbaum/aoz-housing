@@ -184,6 +184,26 @@ const CAREER_DOCUMENTS_WRITE = 'documents:write'
  */
 const MESSAGES_READ = 'messages:read'
 
+/**
+ * Opening the queue of facts clients entered about their own admin life.
+ *
+ * This permission only says "you have a queue at all". WHICH facts a person
+ * sees, and for which clients, is decided per fact kind against the care seats
+ * they hold — `lib/client-facts/policy.ts`. So the Jobcoach holds this and
+ * sees permits for the clients he coaches, never their insurance and never a
+ * client he does not hold.
+ *
+ * A single grant here would have been the mistake: "the care team may see the
+ * client's facts" reads as reasonable and hands a Jobcoach the list of doctors
+ * somebody visits. Not `residents:read` either — all four care roles hold
+ * that, so gating on it is a check nobody fails, which is the exact error made
+ * on the messages pages.
+ *
+ * LIEGENSCHAFTEN is absent: running the building is not a reason to hold
+ * anyone's health insurance.
+ */
+const CLIENT_FACTS_READ = 'clientFacts:read'
+
 export const ROLE_PERMISSIONS = {
   // Legacy. Equivalent to BETREUUNG; what made it special now lives in `scope`
   // and `isSystemAdmin`, which the migration set on every existing ADMIN row.
@@ -194,8 +214,9 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:write',
     MESSAGES_READ,
+    CLIENT_FACTS_READ,
   ],
-  BETREUUNG: [...OPERATIONAL, MESSAGES_READ],
+  BETREUUNG: [...OPERATIONAL, MESSAGES_READ, CLIENT_FACTS_READ],
   SOZIALARBEIT: [
     'dashboard:read',
     'residents:read',
@@ -217,6 +238,7 @@ export const ROLE_PERMISSIONS = {
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
     MESSAGES_READ,
+    CLIENT_FACTS_READ,
   ],
   JOBCOACH: [
     'dashboard:read',
@@ -241,6 +263,8 @@ export const ROLE_PERMISSIONS = {
     'ai:assist',
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
+    // Permits only, and only for clients he holds — see policy.ts.
+    CLIENT_FACTS_READ,
   ],
   /**
    * Runs the buildings, not a caseload.

@@ -681,4 +681,57 @@ export const uk: Dictionary = {
   'opportunities.stageStarted': 'Розпочато',
   'opportunities.stageEnded': 'Завершено',
   'opportunities.stageDeclined': 'Відхилено',
+
+  'nav.documents': 'Мої документи',
+  'documents.title': 'Мої документи',
+  'documents.intro':
+    'Тут ти сам вносиш те, про що інакше довелося б писати своєму соціальному супроводу. Усе добровільно, і ти можеш будь-коли це змінити або видалити.',
+  'documents.privacy':
+    'Ці дані бачиш лише ти та фахівці, які тебе супроводжують. Вони ніколи не впливають на те, яке житло тобі запропонують.',
+  'documents.statusPending': 'Ще не перевірено',
+  'documents.statusConfirmed': 'Переглянуто супроводом',
+  'documents.statusRejected': 'Будь ласка, виправ',
+  'documents.confirmMeaning':
+    'Переглянуто означає, що фахівець подивився на цей запис. Це не означає, що його перевірили в страховій компанії чи в органах влади.',
+  'documents.staffNote': 'Відповідь супроводу',
+  'documents.add': 'Додати',
+  'documents.edit': 'Змінити',
+  'documents.delete': 'Видалити',
+  'documents.save': 'Зберегти',
+  'documents.cancel': 'Скасувати',
+  'documents.saved': 'Збережено.',
+
+  'documents.insurance': 'Медичне страхування',
+  'documents.insuranceEmpty': 'Страхову компанію ще не додано.',
+  'documents.insurerName': 'Страхова компанія',
+  'documents.policyNumber': 'Номер поліса',
+  'documents.validUntil': 'Дійсний до',
+  'documents.validUntilHint': 'Якщо вкажеш дату, ми нагадаємо тобі завчасно.',
+
+  'documents.healthContacts': 'Медичні фахівці',
+  'documents.healthContactsEmpty': 'Ще нікого не додано.',
+  'documents.healthContactsHint':
+    'Наприклад, твій стоматолог або сімейний лікар — щоб ти і супровід знали, кому телефонувати.',
+  'documents.contactName': "Ім'я",
+  'documents.contactProfession': 'Спеціальність',
+  'documents.contactProfessionHint': 'Наприклад стоматолог, сімейний лікар, фізіотерапія',
+  'documents.contactPhone': 'Телефон',
+  'documents.contactAddress': 'Адреса',
+  'documents.contactNote': 'Примітка',
+
+  'documents.permit': 'Статус перебування',
+  'documents.permitHint': 'Лише тип посвідки та термін її дії. Нічого про твою справу.',
+  'documents.permitEmpty': 'Ще нічого не додано.',
+  'documents.permitType': 'Посвідка',
+  'documents.permitN': 'Посвідка N (шукач притулку)',
+  'documents.permitF': 'Посвідка F (тимчасово прийнятий)',
+  'documents.permitB': 'Посвідка B (дозвіл на перебування)',
+  'documents.permitC': 'Посвідка C (дозвіл на постійне проживання)',
+  'documents.permitS': 'Посвідка S (статус захисту)',
+  'documents.permitOther': 'Інша посвідка',
+  'documents.permitUnspecified': 'Не вказано',
+
+  'documents.renewalDue': 'Скоро закінчується',
+  'documents.renewalExpired': 'Термін минув',
+  'documents.renewalNone': 'Дату не вказано',
 }

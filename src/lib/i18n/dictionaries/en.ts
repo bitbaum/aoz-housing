@@ -673,4 +673,58 @@ export const en: Dictionary = {
   'opportunities.stageStarted': 'Started',
   'opportunities.stageEnded': 'Finished',
   'opportunities.stageDeclined': 'Declined',
+
+  'nav.documents': 'My documents',
+  'documents.title': 'My documents',
+  'documents.intro':
+    'Enter here what you would otherwise have to message your support worker about. Everything is optional, and you can change or delete it at any time.',
+  'documents.privacy':
+    'Only you and the professionals supporting you can see this. It never affects which flat you are offered.',
+  'documents.statusPending': 'Not checked yet',
+  'documents.statusConfirmed': 'Seen by your support worker',
+  'documents.statusRejected': 'Please correct',
+  'documents.confirmMeaning':
+    'Seen means a professional has looked at it. It does not mean it was verified with the insurer or the authorities.',
+  'documents.staffNote': 'Reply from your support worker',
+  'documents.add': 'Add',
+  'documents.edit': 'Change',
+  'documents.delete': 'Delete',
+  'documents.save': 'Save',
+  'documents.cancel': 'Cancel',
+  'documents.saved': 'Saved.',
+
+  'documents.insurance': 'Health insurance',
+  'documents.insuranceEmpty': 'No health insurance saved yet.',
+  'documents.insurerName': 'Insurer',
+  'documents.policyNumber': 'Policy number',
+  'documents.validUntil': 'Valid until',
+  'documents.validUntilHint': 'If you enter the date, we will remind you in good time.',
+
+  'documents.healthContacts': 'Health professionals',
+  'documents.healthContactsEmpty': 'Nobody added yet.',
+  'documents.healthContactsHint':
+    'For example your dentist or GP — so you and your support worker know who to call.',
+  'documents.contactName': 'Name',
+  'documents.contactProfession': 'Role',
+  'documents.contactProfessionHint': 'For example dentist, GP, physiotherapy',
+  'documents.contactPhone': 'Phone',
+  'documents.contactAddress': 'Address',
+  'documents.contactNote': 'Note',
+
+  'documents.permit': 'Residence status',
+  'documents.permitHint':
+    'Only the type of permit and how long it is valid. Nothing about your case.',
+  'documents.permitEmpty': 'Nothing saved yet.',
+  'documents.permitType': 'Permit',
+  'documents.permitN': 'Permit N (asylum seeker)',
+  'documents.permitF': 'Permit F (temporarily admitted)',
+  'documents.permitB': 'Permit B (residence permit)',
+  'documents.permitC': 'Permit C (settlement permit)',
+  'documents.permitS': 'Permit S (protection status)',
+  'documents.permitOther': 'Other permit',
+  'documents.permitUnspecified': 'Not specified',
+
+  'documents.renewalDue': 'Expires soon',
+  'documents.renewalExpired': 'Expired',
+  'documents.renewalNone': 'No date saved',
 }

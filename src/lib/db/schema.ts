@@ -244,6 +244,28 @@ export const permitRequirement = pgEnum('PermitRequirement', [
   'EMPLOYER_NOTIFIES',
   'PERMIT_REQUIRED',
 ])
+/**
+ * A fact the CLIENT entered about their own admin life, and where it stands
+ * with Betreuung.
+ *
+ * CONFIRMED means "a member of staff has SEEN this", never "this is true".
+ * Franziska cannot ring the insurer to verify a policy number, and a product
+ * that implied she had would be asserting something about a person's insurance
+ * or permit that it cannot know — the same failure as an opportunity claiming
+ * `permitRequirement: NONE` by default.
+ */
+export const clientFactStatus = pgEnum('ClientFactStatus', ['PENDING', 'CONFIRMED', 'REJECTED'])
+
+/**
+ * Swiss permit categories, plus the two honest non-answers.
+ *
+ * TYPE AND EXPIRY ONLY. No case number, no decision history, no grounds, no
+ * procedural stage — those are the "case details" this product must never hold.
+ * What is here is what a person carries in their pocket and what decides
+ * whether a job is lawful for them.
+ */
+export const permitType = pgEnum('PermitType', ['N', 'F', 'B', 'C', 'S', 'OTHER', 'UNSPECIFIED'])
+
 export const placementStatus = pgEnum('PlacementStatus', ['ACTIVE', 'ENDED', 'TRANSFERRED'])
 export const profileVisibility = pgEnum('ProfileVisibility', ['PRIVATE', 'ROOMMATES', 'RESIDENTS'])
 export const proposalStatus = pgEnum('ProposalStatus', [
@@ -2490,5 +2512,157 @@ export const staffUnit = pgTable(
     })
       .onUpdate('cascade')
       .onDelete('cascade'),
+  ],
+)
+
+// =============================================================================
+// Client-managed admin facts
+//
+// A client's insurance, the health professionals they see, and their permit —
+// entered by the CLIENT, checked by Betreuung. Before this, extending an
+// insurance every six months or booking a dentist meant writing to your
+// Betreuerin and waiting; the facts lived in her inbox rather than in the
+// product.
+//
+// THE RULE, enforced by
+// src/lib/client-facts/__tests__/never-an-input-to-a-decision.test.ts:
+// these tables are the client's own record and are NEVER an input to a
+// decision the product makes. Not read by lib/compatibility (placement,
+// scoring), not by lib/analytics (KPIs), not a filter or sort on a staff list,
+// not in the CSV export. That is what keeps them consistent with "never track
+// anything that could be used for discrimination" — the discrimination vector
+// is a field the algorithm can see, and these are invisible to it.
+//
+// Diagnoses remain forbidden outright. A provider CONTACT is an address book;
+// a diagnosis is a judgment about a person, and no column here can hold one.
+// =============================================================================
+
+export const clientInsurance = pgTable(
+  'ClientInsurance',
+  {
+    id: text().primaryKey().$defaultFn(createId).notNull(),
+    createdAt: timestamp({ precision: 3, mode: 'date' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: 'date' })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
+    residentId: text().notNull(),
+    insurerName: text().notNull(),
+    policyNumber: text(),
+    /** The renewal date — the reason this table exists. */
+    validUntil: timestamp({ precision: 3, mode: 'date' }),
+    status: clientFactStatus().default('PENDING').notNull(),
+    reviewedBy: text(),
+    reviewedAt: timestamp({ precision: 3, mode: 'date' }),
+    staffNote: text(),
+  },
+  (table) => [
+    index('ClientInsurance_residentId_idx').using('btree', table.residentId.asc().nullsLast()),
+    index('ClientInsurance_status_idx').using('btree', table.status.asc().nullsLast()),
+    index('ClientInsurance_validUntil_idx').using('btree', table.validUntil.asc().nullsLast()),
+    foreignKey({
+      columns: [table.residentId],
+      foreignColumns: [resident.id],
+      name: 'ClientInsurance_residentId_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    foreignKey({
+      columns: [table.reviewedBy],
+      foreignColumns: [user.id],
+      name: 'ClientInsurance_reviewedBy_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('set null'),
+  ],
+)
+
+export const clientHealthContact = pgTable(
+  'ClientHealthContact',
+  {
+    id: text().primaryKey().$defaultFn(createId).notNull(),
+    createdAt: timestamp({ precision: 3, mode: 'date' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: 'date' })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
+    residentId: text().notNull(),
+    name: text().notNull(),
+    /**
+     * What they do — "Zahnärztin", "Hausarzt". The PROFESSION, which is the
+     * client's own words about who they call. There is deliberately no field
+     * for why they see them.
+     */
+    profession: text().notNull(),
+    phone: text(),
+    address: text(),
+    note: text(),
+    status: clientFactStatus().default('PENDING').notNull(),
+    reviewedBy: text(),
+    reviewedAt: timestamp({ precision: 3, mode: 'date' }),
+    staffNote: text(),
+  },
+  (table) => [
+    index('ClientHealthContact_residentId_idx').using('btree', table.residentId.asc().nullsLast()),
+    index('ClientHealthContact_status_idx').using('btree', table.status.asc().nullsLast()),
+    foreignKey({
+      columns: [table.residentId],
+      foreignColumns: [resident.id],
+      name: 'ClientHealthContact_residentId_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    foreignKey({
+      columns: [table.reviewedBy],
+      foreignColumns: [user.id],
+      name: 'ClientHealthContact_reviewedBy_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('set null'),
+  ],
+)
+
+export const clientPermit = pgTable(
+  'ClientPermit',
+  {
+    id: text().primaryKey().$defaultFn(createId).notNull(),
+    createdAt: timestamp({ precision: 3, mode: 'date' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: 'date' })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
+    residentId: text().notNull(),
+    type: permitType().default('UNSPECIFIED').notNull(),
+    validUntil: timestamp({ precision: 3, mode: 'date' }),
+    status: clientFactStatus().default('PENDING').notNull(),
+    reviewedBy: text(),
+    reviewedAt: timestamp({ precision: 3, mode: 'date' }),
+    staffNote: text(),
+  },
+  (table) => [
+    // One current permit per person: a second row would be two answers to
+    // "what may this person lawfully do", and nothing would say which governs.
+    uniqueIndex('ClientPermit_residentId_key').using('btree', table.residentId.asc().nullsLast()),
+    index('ClientPermit_validUntil_idx').using('btree', table.validUntil.asc().nullsLast()),
+    foreignKey({
+      columns: [table.residentId],
+      foreignColumns: [resident.id],
+      name: 'ClientPermit_residentId_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    foreignKey({
+      columns: [table.reviewedBy],
+      foreignColumns: [user.id],
+      name: 'ClientPermit_reviewedBy_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('set null'),
   ],
 )

@@ -689,4 +689,57 @@ export const fr: Dictionary = {
   'opportunities.stageStarted': 'Commencé',
   'opportunities.stageEnded': 'Terminé',
   'opportunities.stageDeclined': 'Refusé',
+
+  'nav.documents': 'Mes documents',
+  'documents.title': 'Mes documents',
+  'documents.intro':
+    'Inscris ici ce que tu devais sinon demander par message à ton accompagnement. Tout est facultatif et tu peux le modifier ou le supprimer à tout moment.',
+  'documents.privacy':
+    "Ces informations ne sont visibles que par toi et les personnes qui t'accompagnent. Elles n'entrent jamais en compte dans l'attribution d'un logement.",
+  'documents.statusPending': 'Pas encore vérifié',
+  'documents.statusConfirmed': "Vu par l'accompagnement",
+  'documents.statusRejected': 'À corriger',
+  'documents.confirmMeaning':
+    "Vu signifie qu'une personne de l'accompagnement a regardé l'information. Cela ne signifie pas qu'elle a été vérifiée auprès de la caisse ou des autorités.",
+  'documents.staffNote': "Retour de l'accompagnement",
+  'documents.add': 'Ajouter',
+  'documents.edit': 'Modifier',
+  'documents.delete': 'Supprimer',
+  'documents.save': 'Enregistrer',
+  'documents.cancel': 'Annuler',
+  'documents.saved': 'Enregistré.',
+
+  'documents.insurance': 'Assurance maladie',
+  'documents.insuranceEmpty': 'Aucune caisse maladie enregistrée.',
+  'documents.insurerName': 'Caisse maladie',
+  'documents.policyNumber': "Numéro d'assuré",
+  'documents.validUntil': "Valable jusqu'au",
+  'documents.validUntilHint': 'Si tu indiques la date, nous te le rappellerons à temps.',
+
+  'documents.healthContacts': 'Professionnels de santé',
+  'documents.healthContactsEmpty': 'Personne enregistré pour le moment.',
+  'documents.healthContactsHint':
+    "Par exemple ta dentiste ou ton médecin de famille — pour que toi et l'accompagnement sachiez qui appeler.",
+  'documents.contactName': 'Nom',
+  'documents.contactProfession': 'Fonction',
+  'documents.contactProfessionHint': 'Par exemple dentiste, médecin de famille, physiothérapie',
+  'documents.contactPhone': 'Téléphone',
+  'documents.contactAddress': 'Adresse',
+  'documents.contactNote': 'Remarque',
+
+  'documents.permit': 'Statut de séjour',
+  'documents.permitHint': 'Uniquement le type de permis et sa validité. Rien sur ta procédure.',
+  'documents.permitEmpty': 'Rien enregistré pour le moment.',
+  'documents.permitType': 'Permis',
+  'documents.permitN': "Permis N (demandeur d'asile)",
+  'documents.permitF': 'Permis F (admission provisoire)',
+  'documents.permitB': 'Permis B (autorisation de séjour)',
+  'documents.permitC': "Permis C (autorisation d'établissement)",
+  'documents.permitS': 'Permis S (statut de protection)',
+  'documents.permitOther': 'Autre permis',
+  'documents.permitUnspecified': 'Sans indication',
+
+  'documents.renewalDue': 'Expire bientôt',
+  'documents.renewalExpired': 'Expiré',
+  'documents.renewalNone': 'Aucune date enregistrée',
 }
