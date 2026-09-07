@@ -2,12 +2,16 @@ import { posix } from 'path'
 import { Marked } from 'marked'
 
 /**
- * Markdown → HTML for the engineering blog.
+ * Markdown rendering for the repo-linked public pages.
  *
- * The input is markdown committed to this repository and reviewed in a pull
- * request, never user input, so the output is trusted enough for
- * `dangerouslySetInnerHTML`. If a post ever comes from anywhere else, this is
- * the line that has to change first.
+ * Two consumers, two pipelines:
+ * - The blog parses through bip-kit's typed blocks (@see ./blocks.ts) and only
+ *   uses `rewriteBlogLinks` from here — typed blocks have no raw-HTML surface.
+ * - Changelog and roadmap still render `marked` → HTML. Their input is
+ *   markdown committed to this repository and reviewed in a pull request,
+ *   never user input, so the output is trusted enough for
+ *   `dangerouslySetInnerHTML`. If that content ever comes from anywhere else,
+ *   this is the line that has to change first.
  */
 
 /** Where the posts live in the repo — the default base every relative link resolves against. */
@@ -56,8 +60,13 @@ function rewriteInternalLinks(markdown: string, baseDir: string): string {
 // so configuring it globally would silently change any other caller's output.
 const marked = new Marked({ gfm: true, breaks: false })
 
-export function renderMarkdown(markdown: string): string {
-  return marked.parse(rewriteInternalLinks(markdown, POSTS_DIR), { async: false })
+/**
+ * Link rewriting for blog posts, applied to the raw markdown BEFORE bip-kit
+ * parses it into blocks — so every surface a link can appear on (paragraphs,
+ * list items, table cells) is covered by one pass.
+ */
+export function rewriteBlogLinks(markdown: string): string {
+  return rewriteInternalLinks(markdown, POSTS_DIR)
 }
 
 export function renderRepoMarkdown(markdown: string, baseDir: string): string {

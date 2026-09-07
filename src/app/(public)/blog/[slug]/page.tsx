@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ReadingProgress, Toc } from 'bip-kit/react'
+import 'bip-kit/styles.css'
+import '@/lib/blog/blog.css'
 import { getAllPosts, getPostBySlug } from '@/lib/blog/posts'
-import { renderMarkdown } from '@/lib/blog/markdown'
+import { parsePostBlocks } from '@/lib/blog/blocks'
+import { BlogPostBody } from '@/lib/blog/BlogPostBody'
 import { BLOG_LABELS } from '@/lib/constants/labels'
 import { formatCalendarDateLong } from '@/lib/utils/formatting'
 
@@ -43,25 +47,43 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = getPostBySlug(slug)
   if (!post) notFound()
 
+  // Trusted input becomes typed blocks: the markdown is committed to this repo
+  // and reviewed in a pull request, and bip-kit's parser turns it into a
+  // discriminated union with no raw-HTML surface at all. @see lib/blog/blocks.ts
+  const { blocks, toc } = parsePostBlocks(post.body)
+
   return (
-    <article>
-      <header className="mb-8 pb-8 border-b border-ui-border">
-        <p className="eyebrow numeric">
-          {BLOG_LABELS.published}{' '}
-          <time dateTime={post.date}>{formatCalendarDateLong(post.date)}</time>
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-semibold text-ui-text mt-2">{post.title}</h1>
-      </header>
+    <>
+      {/* A viewport-fixed hairline showing how far into the post the reader
+          is — the one piece of chrome a long read earns. */}
+      <ReadingProgress />
+      {/* On very wide screens the sticky scroll-spy TOC gets a rail broken out
+          to the right of the reading column (the public layout is a single
+          max-w-3xl column; at 2xl there are ≥384px of true viewport margin
+          beside it, so the 280px breakout cannot cause horizontal scroll). The
+          Toc hides itself under 3 headings, so short posts stay single-column. */}
+      <div className="2xl:grid 2xl:grid-cols-[minmax(0,1fr)_240px] 2xl:gap-10 2xl:-mr-[280px]">
+        <article>
+          <header className="mb-8 pb-8 border-b border-ui-border">
+            <p className="eyebrow numeric">
+              {BLOG_LABELS.published}{' '}
+              <time dateTime={post.date}>{formatCalendarDateLong(post.date)}</time>
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-semibold text-ui-text mt-2">{post.title}</h1>
+          </header>
 
-      {/* Trusted input: the markdown is committed to this repo and reviewed in
-          a pull request. @see lib/blog/markdown.ts */}
-      <div className="prose-post" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.body) }} />
+          <BlogPostBody blocks={blocks} />
 
-      <nav className="mt-12 pt-8 border-t border-ui-border">
-        <Link href="/blog" className="btn-ghost text-sm">
-          {BLOG_LABELS.backToIndex}
-        </Link>
-      </nav>
-    </article>
+          <nav className="mt-12 pt-8 border-t border-ui-border">
+            <Link href="/blog" className="btn-ghost text-sm">
+              {BLOG_LABELS.backToIndex}
+            </Link>
+          </nav>
+        </article>
+        <aside className="hidden 2xl:block">
+          <Toc items={toc} title={BLOG_LABELS.tocTitle} />
+        </aside>
+      </div>
+    </>
   )
 }

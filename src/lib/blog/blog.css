@@ -1,0 +1,78 @@
+/**
+ * AOZH tokens → bip-kit's --bp-* theming contract, for the blog only (this
+ * file is imported by the blog post route, not by globals.css).
+ *
+ * Every value references the design-token SSOT (src/app/globals.css). AOZH
+ * tokens are RGB channel triples, so each mapping wraps them in rgb(). Both
+ * themes are covered by ONE mapping — the underlying tokens already flip on
+ * `data-theme` + the OS preference, which is exactly bip-kit's own dark-mode
+ * convention.
+ *
+ * The three-selector list is deliberate: bip-kit/styles.css defines its
+ * neutral defaults on `:root`, `[data-theme="dark"]`, and (inside a
+ * prefers-color-scheme media query) `:root:not([data-theme="light"])` — that
+ * last one has higher specificity than a bare `:root`, so a plain mapping
+ * would lose to it whenever the OS is dark. Matching each selector's
+ * specificity and loading after styles.css makes this mapping win everywhere.
+ */
+:root,
+:root:not([data-theme='light']),
+:root[data-theme='dark'] {
+  --bp-font-sans: var(--font-inter), system-ui, sans-serif;
+  --bp-font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Near-square geometry, per the design language. */
+  --bp-radius: var(--radius-lg);
+  --bp-radius-sm: var(--radius-md);
+
+  --bp-bg: rgb(var(--color-ui-canvas));
+  --bp-surface: rgb(var(--color-ui-subtle));
+  --bp-fg: rgb(var(--color-ui-text));
+  --bp-fg-muted: rgb(var(--color-ui-muted));
+  --bp-fg-faint: rgb(var(--color-ui-muted));
+  --bp-border: rgb(var(--color-ui-border));
+
+  /* Colour is rationed: links stay monochrome (like .prose-post did) and
+     only pick up the brand red on hover — see the override below. */
+  --bp-accent: rgb(var(--color-ui-text));
+  --bp-accent-contrast: rgb(var(--color-ui-inverse));
+
+  /* Callouts follow the status tier — the only chromatic tokens allowed. */
+  --bp-note: rgb(var(--color-status-info-text));
+  --bp-note-bg: rgb(var(--color-status-info) / 0.08);
+  --bp-tip: rgb(var(--color-status-success-text));
+  --bp-tip-bg: rgb(var(--color-status-success) / 0.08);
+  --bp-warn: rgb(var(--color-status-warning-text));
+  --bp-warn-bg: rgb(var(--color-status-warning) / 0.08);
+  --bp-danger: rgb(var(--color-status-error-text));
+  --bp-danger-bg: rgb(var(--color-status-error) / 0.08);
+}
+
+/* Links: underline in the hairline colour, brand red on hover — the same
+   rationing .prose-post applied (brand red twenty times a page would stop
+   meaning "the action that matters"). */
+.bp-article a {
+  text-decoration-color: rgb(var(--color-ui-border-strong));
+  transition:
+    color 150ms,
+    text-decoration-color 150ms;
+}
+.bp-article a:hover {
+  color: rgb(var(--color-brand-primary));
+  text-decoration-color: rgb(var(--color-brand-primary));
+}
+
+/* The reading-progress hairline is the one place the brand red belongs in an
+   article: it is chrome, not prose, so it does not compete with the running
+   text the way twenty red links would. --bp-accent stays monochrome for
+   everything else. */
+.bp-progress-bar {
+  background: rgb(var(--color-brand-primary));
+}
+
+/* Headings keep the app's tight display tracking. */
+.bp-article .bp-h2,
+.bp-article .bp-h3,
+.bp-article .bp-h4 {
+  letter-spacing: var(--tracking-heading);
+}

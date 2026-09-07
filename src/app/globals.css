@@ -319,10 +319,13 @@
     @apply numeric text-3xl font-semibold leading-none text-ui-text;
   }
 
-  /* Long-form prose rendered from markdown (the engineering blog). The app has
-   no other running-text surface, so this is the one place element selectors
-   are the right tool: the HTML comes from a markdown renderer and cannot carry
-   classes. Everything below still resolves to design tokens.
+  /* Long-form prose rendered from `marked` HTML — the changelog and roadmap
+   pages, which still go through `renderRepoMarkdown`. (The blog moved to
+   bip-kit's typed blocks and its own `bp-*` classes; see lib/blog/blog.css.
+   These rules stay because those two pages still need them, not as leftovers.)
+   Element selectors are the right tool here: the HTML comes from a markdown
+   renderer and cannot carry classes. Everything below still resolves to
+   design tokens.
 
    Links are deliberately NOT brand-coloured. In an article the brand red would
    fire twenty times a page and stop meaning "this is the action that matters",
