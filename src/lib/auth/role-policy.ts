@@ -204,6 +204,29 @@ const MESSAGES_READ = 'messages:read'
  */
 const CLIENT_FACTS_READ = 'clientFacts:read'
 
+/**
+ * Answering a household's proposals, and curating the rule catalogue.
+ *
+ * ⚠️ EVERY governance action took `requireStaffAuth()` — signed in, nothing
+ * more. So any staff member could confirm a house decision, create or archive
+ * an AOZ rule, or close voting, including two roles that cannot even see
+ * /rules in their navigation. The menu honoured a boundary the code did not,
+ * which is the same defect the message and maintenance surfaces shipped with.
+ *
+ * The dashboard tile for it was gated on `housing:read`, with a comment saying
+ * it rode there "not by a governance-specific permission that does not exist".
+ * That was fair when `housing:read` implied a care role. It stopped being fair
+ * the day LIEGENSCHAFTEN was added: Manuel holds `housing:read` because he
+ * runs the building stock, and it silently handed him the queue for confirming
+ * decisions — the queue where SAFETY and NON-DISCRIMINATION topics land,
+ * precisely because those must never be settled by a vote.
+ *
+ * So the permission now exists. READING the rule book stays on `housing:read`
+ * — Manuel should know the rules of a house he runs. Answering the people who
+ * live there is a different job.
+ */
+const GOVERNANCE_CONFIRM = 'governance:confirm'
+
 export const ROLE_PERMISSIONS = {
   // Legacy. Equivalent to BETREUUNG; what made it special now lives in `scope`
   // and `isSystemAdmin`, which the migration set on every existing ADMIN row.
@@ -215,8 +238,9 @@ export const ROLE_PERMISSIONS = {
     'activities:write',
     MESSAGES_READ,
     CLIENT_FACTS_READ,
+    GOVERNANCE_CONFIRM,
   ],
-  BETREUUNG: [...OPERATIONAL, MESSAGES_READ, CLIENT_FACTS_READ],
+  BETREUUNG: [...OPERATIONAL, MESSAGES_READ, CLIENT_FACTS_READ, GOVERNANCE_CONFIRM],
   SOZIALARBEIT: [
     'dashboard:read',
     'residents:read',
@@ -239,6 +263,7 @@ export const ROLE_PERMISSIONS = {
     CAREER_DOCUMENTS_WRITE,
     MESSAGES_READ,
     CLIENT_FACTS_READ,
+    GOVERNANCE_CONFIRM,
   ],
   JOBCOACH: [
     'dashboard:read',

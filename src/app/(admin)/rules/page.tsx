@@ -4,7 +4,7 @@ import { RuleBookView } from '@/components/governance/RuleBookView'
 import { SyncCatalogButton } from './SyncCatalogButton'
 import { getOrgRules, getProposalsAwaitingStaff } from '@/lib/governance/queries'
 import { buildRuleBook } from '@/lib/governance/rules'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import Link from 'next/link'
 import { DELEGATION_ALLOWS_UNIT_RULE, RULE_DELEGATION_LABELS } from '@/lib/config/house-rules'
 import { BRAND } from '@/lib/config/brand'
@@ -12,7 +12,10 @@ import { BRAND } from '@/lib/config/brand'
 export const dynamic = 'force-dynamic'
 
 export default async function RulesPage() {
-  await requireStaffAuth()
+  // Reading the rule book is housing:read — the same gate its nav entry uses,
+  // so the menu and the page finally agree. Confirming a proposal is a
+  // different permission, checked in the actions.
+  await requirePermission('housing:read')
 
   const [orgRules, awaitingStaff] = await Promise.all([getOrgRules(), getProposalsAwaitingStaff()])
 

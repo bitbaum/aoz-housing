@@ -22,7 +22,7 @@ import { and, eq } from 'drizzle-orm'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import {
   advanceStageSchema,
   createAgreementSchema,
@@ -55,7 +55,7 @@ type ActionResult<T = undefined> = { success: true; data?: T } | { success: fals
 export async function syncOrgRuleCatalog(): Promise<
   ActionResult<{ created: number; amended: number }>
 > {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   try {
     const result = await syncOrgRules(db)
 
@@ -80,7 +80,7 @@ export async function syncOrgRuleCatalog(): Promise<
 }
 
 export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{ id: string }>> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = orgRuleSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -117,7 +117,7 @@ export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{
  * never saw.
  */
 export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionResult> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = updateOrgRuleSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -168,7 +168,7 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
 }
 
 export async function archiveRule(ruleId: string): Promise<ActionResult> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   try {
     const [archived] = await db
       .update(houseRule)
@@ -195,7 +195,7 @@ export async function archiveRule(ruleId: string): Promise<ActionResult> {
 export async function createUnitRuleAsStaff(
   input: UnitRuleInput,
 ): Promise<ActionResult<{ id: string }>> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = unitRuleSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -258,7 +258,7 @@ export async function createUnitRuleAsStaff(
 export async function closeProposalVoting(
   proposalId: string,
 ): Promise<ActionResult<{ status: string }>> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
 
   try {
     const status = await closeProposal(proposalId)
@@ -282,7 +282,7 @@ export async function closeProposalVoting(
 
 /** Staff confirmation for advisory decisions and rules claiming to strengthen an AOZ rule. */
 export async function confirmProposal(input: StaffConfirmProposalInput): Promise<ActionResult> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = staffConfirmProposalSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -341,7 +341,7 @@ export async function confirmProposal(input: StaffConfirmProposalInput): Promise
 // =============================================================================
 
 export async function advanceResolutionStage(input: AdvanceStageInput): Promise<ActionResult> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = advanceStageSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -395,7 +395,7 @@ export async function advanceResolutionStage(input: AdvanceStageInput): Promise<
 export async function createAgreement(
   input: CreateAgreementInput,
 ): Promise<ActionResult<{ id: string }>> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = createAgreementSchema.safeParse(input)
   if (!parsed.success) {
     return {
@@ -451,7 +451,7 @@ export async function createAgreement(
  * rests on — without it "resolved" is just a note someone typed.
  */
 export async function reviewAgreement(input: ReviewAgreementInput): Promise<ActionResult> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('governance:confirm')
   const parsed = reviewAgreementSchema.safeParse(input)
   if (!parsed.success) {
     return {
