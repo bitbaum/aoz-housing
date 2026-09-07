@@ -1,9 +1,9 @@
-# Offerte: AOZ Begleitung — Integrationsplattform fuer Fachpersonen
+# Offerte: AOZ Begleitung — Integrationsplattform für Fachpersonen
 
 **Für** AOZ (Asyl-Organisation Zürich)
 **Von** Georgy Butaev, Zürich
 **Datum** 15. August 2026  
-**Zuletzt angepasst** 19. August 2026 — Reframing fuer Montag: AOZ Begleitung, Vier-Pfeiler-Narrativ, breitere Fachpersonen-Sicht.  
+**Zuletzt angepasst** 7. September 2026 — Fünf Rollen statt vier, angebotene Sprachen korrigiert, fehlende Umlaute im ganzen Dokument behoben.  
 **Gültig bis** 14. Oktober 2026
 **Referenz** AOZ-WOHNEN-2026-01
 
@@ -16,21 +16,21 @@
 ## 1. Zusammenfassung
 
 AOZ braucht nicht nur ein besseres Platzierungswerkzeug, sondern eine
-**gemeinsame Arbeitsflaeche fuer Fachpersonen**. Housing-Stabilitaet,
-Sprach- und Lernfortschritt, Arbeitsmarktnaehe, Teilhabe und koordinierte
-Begleitung duerfen nicht in getrennten Sichten stecken bleiben.
+**gemeinsame Arbeitsfläche für Fachpersonen**. Housing-Stabilität,
+Sprach- und Lernfortschritt, Arbeitsmarktnähe, Teilhabe und koordinierte
+Begleitung dürfen nicht in getrennten Sichten stecken bleiben.
 
-Das System ist **bereits gebaut und laeuft**. Es verbindet:
+Das System ist **bereits gebaut und läuft**. Es verbindet:
 
-- erklaerbares Matching und Platzierung
+- erklärbares Matching und Platzierung
 - Housing-, Vorfall- und Transferprozesse
-- Integrations-Evidenz fuer Sprache, Kurse, Qualifikationen und Freiwilligenarbeit
-- rollenfoermige Sichten fuer Leitung, Betreuung, Sozialarbeit und Jobcoach
-- ein mehrsprachiges Portal fuer Klient*innen
+- Integrations-Evidenz für Sprache, Kurse, Qualifikationen und Freiwilligenarbeit
+- rollenförmige Sichten für Betreuung, Sozialarbeit, Jobcoach, Freiwilligenarbeit und Liegenschaften
+- ein mehrsprachiges Portal für Klient*innen
 
 Diese Offerte betrifft nicht die Entwicklung eines Prototyps, sondern die
-**Einfuehrung, den Betrieb und die gezielte Weiterentwicklung** eines bereits
-funktionsfaehigen Produkts.
+**Einführung, den Betrieb und die gezielte Weiterentwicklung** eines bereits
+funktionsfähigen Produkts.
 
 | | |
 | --- | --- |
@@ -44,9 +44,9 @@ Alle Preise in Schweizer Franken, exkl. MwSt.
 
 ## 2. Ausgangslage
 
-Bei der Platzierung in Gemeinschaftsunterkuenften entstehen wiederkehrend
-Konflikte aus Unvertraeglichkeiten, die bei der Zuteilung sichtbar gewesen
-waeren:
+Bei der Platzierung in Gemeinschaftsunterkünften entstehen wiederkehrend
+Konflikte aus Unverträglichkeiten, die bei der Zuteilung sichtbar gewesen
+wären:
 
 - unterschiedliche Schlafrhythmen
 - unterschiedliche Lärmtoleranz und Sauberkeitsstandards
@@ -54,16 +54,16 @@ waeren:
 - fehlende gemeinsame Sprache im Zimmer
 - Mobilitätsbedarf ohne passende Unterkunft
 
-Jeder dieser Konflikte bindet Personalzeit fuer Schlichtung und, im schlechteren
-Fall, fuer einen Umzug.
+Jeder dieser Konflikte bindet Personalzeit für Schlichtung und, im schlechteren
+Fall, für einen Umzug.
 
-Gleichzeitig endet die operative Realitaet nicht bei der Platzierung. AOZ muss
+Gleichzeitig endet die operative Realität nicht bei der Platzierung. AOZ muss
 auch sehen:
 
 - wie stabil eine Unterbringung bleibt
-- welche Rueckmeldungen von Klient*innen offen sind
+- welche Rückmeldungen von Klient*innen offen sind
 - welche Integrationsschritte bereits sichtbar sind
-- wo Sozialarbeit und Jobcoach naechste Schritte brauchen
+- wo Sozialarbeit und Jobcoach nächste Schritte brauchen
 
 **Wichtig:** Wie hoch diese Kosten bei AOZ tatsächlich sind, ist heute nicht gemessen.
 Diese Offerte behauptet keine Einsparung. Sie schlägt vor, sie zuerst zu messen
@@ -76,7 +76,7 @@ Diese Offerte behauptet keine Einsparung. Sie schlägt vor, sie zuerst zu messen
 Das System ist kein Prototyp. Folgende Funktionen sind implementiert, getestet und im
 Betrieb:
 
-### Stability - Platzierung und Kompatibilitaet
+### Stability - Platzierung und Kompatibilität
 
 - Kompatibilitätsberechnung über **4 Dimensionen** (Lebensstil 30 %, Sozial 25 %,
   Praktisch 25 %, Risiko 20 %) und 38 Faktoren
@@ -89,7 +89,7 @@ Betrieb:
 - **Das System empfiehlt, der Mensch entscheidet.** Übersteuerungen sind jederzeit
   möglich und werden mit Begründung protokolliert.
 
-### Stability - Betrieb der Unterkuenfte
+### Stability - Betrieb der Unterkünfte
 
 - Verwaltung von Bewohnenden, Unterkünften, Zimmern und Betten
 - Platzierungshistorie mit Ein- und Auszug
@@ -100,18 +100,27 @@ Betrieb:
 
 ### Capability, Participation und Guidance
 
-- Vier Mitarbeitenden-Rollen: **Leitung**, **Betreuung**, **Sozialarbeit**, **Jobcoach**
-  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugaenge weiterlaufen)
+- Fünf Mitarbeitenden-Rollen: **Betreuung**, **Sozialarbeit**, **Jobcoach**,
+  **Freiwilligenarbeit** und **Liegenschaften** — Letztere bewirtschaftet den
+  Wohnraum und führt bewusst keine Klient*innen
+- Die Rolle beantwortet nur eine Frage (für welchen Bereich bin ich angestellt).
+  Zwei weitere Achsen beantworten die anderen: **Reichweite** (eigener Bereich
+  oder alle Bereiche) und **Systemverwaltung** (darf ich das Produkt
+  konfigurieren). Eine Teamleitung ist damit «Betreuung + alle Bereiche», ohne
+  dass sie die Einstellungen erhält — genau das war mit einer einzigen
+  Rollen-Liste nicht ausdrückbar
+  (technisch bleibt der Altwert `ADMIN` bestehen, damit vorhandene Zugänge
+  weiterlaufen; neu vergeben wird er nicht)
 - Lernprofil pro Bewohner:in: Sprachtests, Kurse, informelles Lernen,
-  Abschluesse, Freiwilligenarbeit und weitere Integrations-Evidenz
-- rollenfoermige Boards fuer Integrations-Evidenz mit Filtern fuer eigene
+  Abschlüsse, Freiwilligenarbeit und weitere Integrations-Evidenz
+- rollenförmige Boards für Integrations-Evidenz mit Filtern für eigene
   Klient*innen, Status, Quelle und Kategorie
-- Care Team mit sichtbaren Zustaendigkeiten, Nachrichten und Follow-ups
+- Care Team mit sichtbaren Zuständigkeiten, Nachrichten und Follow-ups
 
-### Betriebsfaehigkeit
+### Betriebsfähigkeit
 
 - Zufriedenheitserfassung
-- CSV-Import und -Export fuer alle zentralen Datenbestaende
+- CSV-Import und -Export für alle zentralen Datenbestände
 - nachvollziehbare Rollentrennung
 - mobile Bedienbarkeit und produktionsnahe Demo-Umgebung
 
@@ -122,7 +131,11 @@ Betrieb:
 - Anliegen melden — geht in die Warteschlange der Mitarbeitenden
 - Umzug beantragen
 - Ämtli einsehen und übernehmen
-- Hilfe/FAQ in Deutsch, Englisch, Französisch, Arabisch, Farsi/Dari, Tigrinya u. a.
+- Portal in Deutsch, Englisch, Französisch, Ukrainisch, Russisch und Arabisch —
+  eine Sprache wird erst angeboten, wenn jede Zeichenkette übersetzt ist. Farsi/Dari,
+  Tigrinya, Türkisch, Albanisch und Somali liegen im Repository und bleiben so
+  lange verborgen: ein halb übersetztes Portal ist schlechter als ein deutsches,
+  weil man nicht erkennen kann, welche Hälfte fehlt
 - Lernprofil und Integrations-Evidenz selbst pflegen
 
 Bewohnende sehen ausschliesslich **ihre eigenen Daten**. Alle folgenreichen Aktionen

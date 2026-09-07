@@ -1,4 +1,4 @@
-# AOZ Housing — Workflow Readiness Matrix (v1)
+# AOZ Begleitung — Workflow Readiness Matrix (v1)
 
 ## Purpose
 

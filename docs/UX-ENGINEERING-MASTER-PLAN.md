@@ -1,4 +1,4 @@
-# AOZ Housing — UX/Engineering Master Plan
+# AOZ Begleitung — UX/Engineering Master Plan
 
 ## 1) Objective
 

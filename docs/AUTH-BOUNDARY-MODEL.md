@@ -1,8 +1,8 @@
-# AOZ Housing — Auth Boundary Model (Resident vs Staff)
+# AOZ Begleitung — Auth Boundary Model (Resident vs Staff)
 
 created_date: 2026-04-01
-last_modified_date: 2026-08-17
-last_modified_summary: Documented one-login operator (resident + Leitung) and domain-scoped care work.
+last_modified_date: 2026-09-07
+last_modified_summary: Drei orthogonale Achsen statt einer Rollenliste; LIEGENSCHAFTEN ergänzt.
 
 ## User Types
 
@@ -15,11 +15,21 @@ last_modified_summary: Documented one-login operator (resident + Leitung) and do
    - Entry: `/login` (code-first on AOZ/AOZH; email still available)
    - Auth: `staff_session` JWT cookie
    - Scope: admin/staff operations (`/`, `/residents`, `/housing`, ...)
-   - Roles: `ADMIN` (UI: Leitung), `BETREUUNG`, `SOZIALARBEIT`, `JOBCOACH`.
-     Permissions live in `src/lib/auth/role-policy.ts`. The enum value `ADMIN`
-     is kept so live JWTs and User rows keep working.
-   - **One staff identity, three care domains.** Wohnen, Sozialarbeit and
-     Jobcoach are seats on a resident (`CareAssignment`), not extra logins.
+   - Roles: `BETREUUNG`, `SOZIALARBEIT`, `JOBCOACH`, `FREIWILLIGENARBEIT`,
+     `LIEGENSCHAFTEN`. Permissions live in `src/lib/auth/role-policy.ts`. The
+     enum value `ADMIN` is kept so live JWTs and User rows keep working, and is
+     never issued to anyone new.
+   - **A role answers ONE question**: which care domain am I staffed for.
+     `scope` answers whose files I may open (`OWN_DOMAIN` / `ALL_DOMAINS`) and
+     `isSystemAdmin` answers whether I may reconfigure the product. Those two
+     axes are what `ADMIN` used to bundle. A team lead is
+     `BETREUUNG + ALL_DOMAINS` without the settings page.
+   - `LIEGENSCHAFTEN` maps to NO care domain — it runs the housing stock and
+     holds no caseload, which is why `STAFF_ROLE_CARE_DOMAIN` is a
+     `Partial<Record<…>>` rather than total.
+   - **One staff identity, four care domains.** Wohnen, Sozialarbeit, Jobcoach
+     and Freiwilligenarbeit are seats on a resident (`CareAssignment`), not
+     extra logins.
      Leitung may write every domain; each specialist writes only their own
      (`src/lib/config/care.ts`). Appointments and catalog attributes live on
      the same resident file. An operator who also lives in the house links
