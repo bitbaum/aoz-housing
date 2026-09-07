@@ -17,6 +17,7 @@ import {
   PLACEMENT_CONCERN_LABELS,
   COMPATIBILITY_MATRIX_LABELS,
   HOUSING_DETAIL_LABELS,
+  RESIDENT_DETAIL_LABELS,
   PAGE_TITLES,
   FORM_LABELS,
   HOUSING_LABELS,
@@ -46,6 +47,8 @@ import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatib
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { getUnitFitConcerns } from '@/lib/compatibility'
 import { requirePermission } from '@/lib/auth'
+import { getEntityAuditLog } from '@/lib/audit'
+import { AuditTrail } from '@/components/admin/AuditTrail'
 import type { Resident, CompatibilityAssessment } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
@@ -245,9 +248,12 @@ export default async function HousingDetailPage({ params }: Props) {
     }
   }
 
-  const [ruleBook, ruleCoverage] = await Promise.all([
+  const [ruleBook, ruleCoverage, unitHistory] = await Promise.all([
     getRuleBook(unit.id),
     getUnitAcknowledgementCoverage(unit.id),
+    // Who changed this flat, and when. Placements, spots and incidents log
+    // under their own entities, so this stays to the unit record itself.
+    getEntityAuditLog('HOUSING_UNIT', unit.id),
   ])
 
   return (
@@ -401,6 +407,16 @@ export default async function HousingDetailPage({ params }: Props) {
             maintenanceCount={maintenanceIncidents.length}
             frequentSubjects={frequentSubjects}
           />
+
+          <details className="card">
+            <summary className="min-h-[44px] cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center text-sm font-medium text-brand-secondary">
+              {RESIDENT_DETAIL_LABELS.changeHistory}
+            </summary>
+            <p className="mt-1 text-xs text-ui-muted">{RESIDENT_DETAIL_LABELS.changeHistoryHint}</p>
+            <div className="mt-3">
+              <AuditTrail entries={unitHistory} showEntity={false} />
+            </div>
+          </details>
         </div>
 
         {/* Right column: Unit details */}

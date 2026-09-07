@@ -40,6 +40,8 @@ import {
   RESIDENT_DETAIL_LABELS,
   getLabel,
 } from '@/lib/constants'
+import { getEntityAuditLog } from '@/lib/audit'
+import { AuditTrail } from '@/components/admin/AuditTrail'
 import { getPlacementCheckIns } from '@/lib/actions'
 import {
   getStatusBadgeClass,
@@ -108,6 +110,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     careAppointments,
     documents,
     opportunityThreads,
+    residentHistory,
   ] = await Promise.all([
     db.query.resident.findFirst({
       where: eq(residentTable.id, id),
@@ -172,6 +175,10 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     canReadDocuments ? listResidentDocuments(id) : Promise.resolve([]),
     // Same rule as documents: fetched only for a viewer who may see them.
     canReadOpportunities ? listApplicationsForResident(id) : Promise.resolve([]),
+    // RESIDENT entries only. The client-fact tables log under their own entity
+    // names, so this cannot reveal that an insurance entry exists to a viewer
+    // who may not read that kind.
+    getEntityAuditLog('RESIDENT', id),
   ])
 
   if (!resident) {
@@ -603,6 +610,26 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
           {/* Placement History */}
           <PlacementHistoryCard placements={pastPlacements} />
+
+          {/*
+            Who changed this record, and when.
+            `getEntityAuditLog` was written for exactly this and had no caller
+            anywhere in the product — 120 write sites, and the only way to read
+            any of it was the system-wide /audit page, which answers a
+            different question. This one is the day-to-day one: "who edited
+            this client, and why".
+            Scoped to RESIDENT entries, so nothing here can reveal that a
+            client-fact entry exists to somebody who may not read that kind.
+          */}
+          <details className="card">
+            <summary className="min-h-[44px] cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center text-sm font-medium text-brand-secondary">
+              {RESIDENT_DETAIL_LABELS.changeHistory}
+            </summary>
+            <p className="mt-1 text-xs text-ui-muted">{RESIDENT_DETAIL_LABELS.changeHistoryHint}</p>
+            <div className="mt-3">
+              <AuditTrail entries={residentHistory} showEntity={false} />
+            </div>
+          </details>
         </div>
 
         {/* Right column: Profile attributes */}

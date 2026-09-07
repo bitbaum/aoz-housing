@@ -624,6 +624,11 @@ export const RESIDENT_DETAIL_LABELS = {
    * never the argument for it, which is the black box this product's own
    * first principles forbid.
    */
+  // Who changed this record. `getEntityAuditLog` existed for this from the
+  // start and had no caller — the trail was written 120 times and readable
+  // only as a system-wide feed, which answers a different question.
+  changeHistory: 'Änderungsverlauf',
+  changeHistoryHint: 'Wer hat an diesem Dossier etwas geändert, und wann.',
   placementRationale: 'Warum diese Unterkunft',
   placementRationaleHint: 'Aufgezeichnet, als die Platzierung entschieden wurde.',
   quickCheckin: 'Schnell-Check-in',

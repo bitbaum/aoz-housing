@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { AuditTrail } from '@/components/admin/AuditTrail'
 import { PageHeader } from '@/components/ui/Page'
 import { requirePermission } from '@/lib/auth'
-import { getRecentAuditLogs, type AuditAction, type AuditEntity } from '@/lib/audit'
+import { getRecentAuditLogs, type AuditEntity } from '@/lib/audit'
 import { AUDIT_LABELS as A } from '@/lib/constants/labels'
-import { formatDateTime } from '@/lib/utils'
 
 export const metadata: Metadata = { title: A.title }
 export const dynamic = 'force-dynamic'
@@ -83,25 +83,12 @@ export default async function AuditPage({
 
       {active === 'STAFF_USER' && <p className="text-xs text-ui-muted">{A.impersonationHint}</p>}
 
-      {entries.length === 0 ? (
-        <p className="text-ui-muted">{A.empty}</p>
-      ) : (
-        <ul className="space-y-2">
-          {entries.map((entry) => (
-            <li key={entry.id} className="card">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                <p className="text-sm text-ui-text">
-                  <span className="font-medium">{entry.actorName ?? A.systemActor}</span>{' '}
-                  {A.actions[entry.action as AuditAction] ?? entry.action}:{' '}
-                  {A.entities[entry.entity] ?? entry.entity}
-                </p>
-                <p className="numeric text-xs text-ui-muted">{formatDateTime(entry.createdAt)}</p>
-              </div>
-              {entry.reason && <p className="mt-1 text-xs text-ui-muted">{entry.reason}</p>}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* The same component the client and housing pages use. It was written
+          twice for a moment, which is how a display layer becomes a third
+          copy of a rule and starts disagreeing with itself. */}
+      <div className="card">
+        <AuditTrail entries={entries} />
+      </div>
     </div>
   )
 }
