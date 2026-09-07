@@ -4,12 +4,24 @@
 import { BRAND } from '@/lib/config/brand'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
+/**
+ * The German word for each staff role.
+ *
+ * Every value in `StaffRole` must appear here. A missing entry does not throw
+ * and does not fail a type check — the lookup simply falls through and the
+ * team roster prints the raw enum, which is how `LIEGENSCHAFTEN` sat in
+ * SCREAMING_SNAKE_CASE beside "Betreuung" and "Jobcoach" on the settings page
+ * from the day the role was added. Pinned by `role-labels.test.ts`.
+ */
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Leitung',
   BETREUUNG: 'Betreuung',
   SOZIALARBEIT: 'Sozialarbeit',
   JOBCOACH: 'Jobcoach',
   FREIWILLIGENARBEIT: 'Freiwilligenarbeit',
+  // Runs the buildings, holds no caseload. Named for the stock, not for a
+  // care domain — which is the whole reason the role exists.
+  LIEGENSCHAFTEN: 'Liegenschaften',
 }
 
 /**
