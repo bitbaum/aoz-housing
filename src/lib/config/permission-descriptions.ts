@@ -41,6 +41,10 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'ai:assist': 'den KI-Assistenten beim Schreiben nutzen',
   'activities:write': 'externe Aktivitäten erfassen und veröffentlichen',
   'messages:read': 'Nachrichten von Klient*innen lesen und beantworten',
+  // Deliberately vague about WHICH angaben: the page shows only the kinds this
+  // role may see for the clients it holds, so a precise list here would be
+  // wrong for three of the four roles that hold it.
+  'clientFacts:read': 'Selbst erfasste Angaben der eigenen Klient*innen prüfen',
   'documents:read': 'Lebenslauf, Zeugnisse und Referenzen einsehen',
   'documents:write': 'Lebenslauf, Zeugnisse und Referenzen hinzufügen und entfernen',
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',

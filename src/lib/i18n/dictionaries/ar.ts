@@ -664,4 +664,57 @@ export const ar: Dictionary = {
   'opportunities.stageStarted': 'بدأ',
   'opportunities.stageEnded': 'انتهى',
   'opportunities.stageDeclined': 'مرفوض',
+
+  'nav.documents': 'مستنداتي',
+  'documents.title': 'مستنداتي',
+  'documents.intro':
+    'أدخل هنا بنفسك ما كان عليك مراسلة المرافق الاجتماعي بشأنه. كل شيء اختياري، ويمكنك تغييره أو حذفه في أي وقت.',
+  'documents.privacy':
+    'هذه المعلومات مرئية لك وللمختصين الذين يرافقونك فقط. ولا تؤثر أبداً على السكن الذي يُعرض عليك.',
+  'documents.statusPending': 'لم يُراجَع بعد',
+  'documents.statusConfirmed': 'اطّلع عليه المرافق',
+  'documents.statusRejected': 'يرجى التصحيح',
+  'documents.confirmMeaning':
+    'اطّلع عليه يعني أن مختصاً نظر في المعلومة. ولا يعني أنه تم التحقق منها لدى شركة التأمين أو الجهات الرسمية.',
+  'documents.staffNote': 'رد المرافق',
+  'documents.add': 'إضافة',
+  'documents.edit': 'تعديل',
+  'documents.delete': 'حذف',
+  'documents.save': 'حفظ',
+  'documents.cancel': 'إلغاء',
+  'documents.saved': 'تم الحفظ.',
+
+  'documents.insurance': 'التأمين الصحي',
+  'documents.insuranceEmpty': 'لم تُسجَّل شركة تأمين بعد.',
+  'documents.insurerName': 'شركة التأمين',
+  'documents.policyNumber': 'رقم التأمين',
+  'documents.validUntil': 'صالح حتى',
+  'documents.validUntilHint': 'إذا أدخلت التاريخ، سنُذكّرك في الوقت المناسب.',
+
+  'documents.healthContacts': 'مختصو الرعاية الصحية',
+  'documents.healthContactsEmpty': 'لم يُضَف أحد بعد.',
+  'documents.healthContactsHint':
+    'مثلاً طبيب الأسنان أو طبيب الأسرة — لتعرف أنت والمرافق بمن تتصلان.',
+  'documents.contactName': 'الاسم',
+  'documents.contactProfession': 'التخصص',
+  'documents.contactProfessionHint': 'مثلاً طبيبة أسنان، طبيب أسرة، علاج طبيعي',
+  'documents.contactPhone': 'الهاتف',
+  'documents.contactAddress': 'العنوان',
+  'documents.contactNote': 'ملاحظة',
+
+  'documents.permit': 'وضع الإقامة',
+  'documents.permitHint': 'نوع التصريح ومدة صلاحيته فقط. لا شيء عن ملفك.',
+  'documents.permitEmpty': 'لم يُسجَّل شيء بعد.',
+  'documents.permitType': 'التصريح',
+  'documents.permitN': 'تصريح N (طالب لجوء)',
+  'documents.permitF': 'تصريح F (قبول مؤقت)',
+  'documents.permitB': 'تصريح B (إذن إقامة)',
+  'documents.permitC': 'تصريح C (إذن استقرار)',
+  'documents.permitS': 'تصريح S (وضع الحماية)',
+  'documents.permitOther': 'تصريح آخر',
+  'documents.permitUnspecified': 'غير محدد',
+
+  'documents.renewalDue': 'ينتهي قريباً',
+  'documents.renewalExpired': 'منتهي الصلاحية',
+  'documents.renewalNone': 'لم يُسجَّل تاريخ',
 }

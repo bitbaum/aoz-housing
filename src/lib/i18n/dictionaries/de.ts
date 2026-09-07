@@ -727,6 +727,63 @@ export const de = {
   'transfer.yourReason': 'Dein Grund',
   'empty.filtered': 'Nichts passt zu deiner Auswahl.',
   'empty.clearFilters': 'Filter zurücksetzen',
+
+  // Meine Unterlagen — die Angaben, für die man bisher der Betreuung schreiben
+  // musste. "Geprüft" heisst gesehen, nie "gültig": niemand hier kann bei der
+  // Kasse oder beim Amt nachfragen, und die Wörter dürfen nicht mehr behaupten.
+  'nav.documents': 'Meine Unterlagen',
+  'documents.title': 'Meine Unterlagen',
+  'documents.intro':
+    'Hier trägst du selbst ein, was sonst per Nachricht an die Betreuung geht. Alles ist freiwillig, und du kannst es jederzeit ändern oder löschen.',
+  'documents.privacy':
+    'Diese Angaben sind nur für dich und die Fachpersonen sichtbar, die dich begleiten. Sie fliessen nie in die Zuteilung einer Wohnung ein.',
+  'documents.statusPending': 'Noch nicht geprüft',
+  'documents.statusConfirmed': 'Von der Betreuung gesehen',
+  'documents.statusRejected': 'Bitte korrigieren',
+  'documents.confirmMeaning':
+    'Gesehen heisst: eine Fachperson hat die Angabe angeschaut. Es heisst nicht, dass sie bei der Kasse oder beim Amt überprüft wurde.',
+  'documents.staffNote': 'Rückmeldung der Betreuung',
+  'documents.add': 'Hinzufügen',
+  'documents.edit': 'Ändern',
+  'documents.delete': 'Löschen',
+  'documents.save': 'Speichern',
+  'documents.cancel': 'Abbrechen',
+  'documents.saved': 'Gespeichert.',
+
+  'documents.insurance': 'Krankenversicherung',
+  'documents.insuranceEmpty': 'Noch keine Krankenkasse hinterlegt.',
+  'documents.insurerName': 'Krankenkasse',
+  'documents.policyNumber': 'Versichertennummer',
+  'documents.validUntil': 'Gültig bis',
+  'documents.validUntilHint': 'Wenn du das Datum einträgst, erinnern wir dich rechtzeitig.',
+
+  'documents.healthContacts': 'Gesundheitsfachpersonen',
+  'documents.healthContactsEmpty': 'Noch niemand eingetragen.',
+  'documents.healthContactsHint':
+    'Zum Beispiel deine Zahnärztin oder dein Hausarzt — damit du und die Betreuung wissen, wen ihr anruft.',
+  'documents.contactName': 'Name',
+  'documents.contactProfession': 'Funktion',
+  'documents.contactProfessionHint': 'Zum Beispiel Zahnärztin, Hausarzt, Physiotherapie',
+  'documents.contactPhone': 'Telefon',
+  'documents.contactAddress': 'Adresse',
+  'documents.contactNote': 'Notiz',
+
+  'documents.permit': 'Aufenthaltsstatus',
+  'documents.permitHint':
+    'Nur die Art des Ausweises und bis wann er gilt. Nichts über dein Verfahren.',
+  'documents.permitEmpty': 'Noch nichts hinterlegt.',
+  'documents.permitType': 'Ausweis',
+  'documents.permitN': 'Ausweis N (Asylsuchend)',
+  'documents.permitF': 'Ausweis F (Vorläufig aufgenommen)',
+  'documents.permitB': 'Ausweis B (Aufenthaltsbewilligung)',
+  'documents.permitC': 'Ausweis C (Niederlassungsbewilligung)',
+  'documents.permitS': 'Ausweis S (Schutzstatus)',
+  'documents.permitOther': 'Anderer Ausweis',
+  'documents.permitUnspecified': 'Keine Angabe',
+
+  'documents.renewalDue': 'Läuft bald ab',
+  'documents.renewalExpired': 'Abgelaufen',
+  'documents.renewalNone': 'Kein Datum hinterlegt',
 } as const
 
 /** The key set every dictionary is measured against. */

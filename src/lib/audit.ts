@@ -38,6 +38,13 @@ export type AuditEntity =
   // closing a borrowed view. Distinct from the `userId` on every other entry,
   // which records who ACTED; here the staff member is what was acted upon.
   | 'STAFF_USER'
+  // Facts a client keeps about their own admin life. Audited like everything
+  // else, and for the same reason: these entries are how a client can later
+  // establish that they DID enter their insurance in good time, which is
+  // exactly the dispute the paper-and-inbox version left unresolvable.
+  | 'CLIENT_INSURANCE'
+  | 'CLIENT_HEALTH_CONTACT'
+  | 'CLIENT_PERMIT'
 
 interface AuditLogEntry {
   action: AuditAction

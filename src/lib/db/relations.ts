@@ -16,6 +16,9 @@ import {
   careAssignment,
   careAttribute,
   compatibilityAssessment,
+  clientHealthContact,
+  clientInsurance,
+  clientPermit,
   complaint,
   conflictAgreement,
   eventRsvp,
@@ -707,5 +710,40 @@ export const staffUnitRelations = relations(staffUnit, ({ one }) => ({
   housingUnit: one(housingUnit, {
     fields: [staffUnit.housingUnitId],
     references: [housingUnit.id],
+  }),
+}))
+
+// Client-managed admin facts. `reviewedBy` is the staff member who recorded
+// having SEEN the entry — never a claim that they verified it.
+export const clientInsuranceRelations = relations(clientInsurance, ({ one }) => ({
+  resident: one(resident, {
+    fields: [clientInsurance.residentId],
+    references: [resident.id],
+  }),
+  reviewer: one(user, {
+    fields: [clientInsurance.reviewedBy],
+    references: [user.id],
+  }),
+}))
+
+export const clientHealthContactRelations = relations(clientHealthContact, ({ one }) => ({
+  resident: one(resident, {
+    fields: [clientHealthContact.residentId],
+    references: [resident.id],
+  }),
+  reviewer: one(user, {
+    fields: [clientHealthContact.reviewedBy],
+    references: [user.id],
+  }),
+}))
+
+export const clientPermitRelations = relations(clientPermit, ({ one }) => ({
+  resident: one(resident, {
+    fields: [clientPermit.residentId],
+    references: [resident.id],
+  }),
+  reviewer: one(user, {
+    fields: [clientPermit.reviewedBy],
+    references: [user.id],
   }),
 }))
