@@ -96,14 +96,36 @@ export async function logAudit({
 }
 
 /**
- * Get audit history for an entity
+ * The history of one thing: who changed this client, or this flat, and when.
+ *
+ * Scoped to ONE entity and one id, which is what keeps it safe to show beside
+ * the record itself. A client's page shows `RESIDENT` entries only — the
+ * client-fact tables log under their own entity names, so a Jobcoach reading a
+ * dossier cannot learn from here that an insurance entry exists, let alone
+ * what it says.
+ *
+ * Returns the same shape as `getRecentAuditLogs` so one component renders both
+ * and the two surfaces cannot describe an entry differently.
  */
-export async function getEntityAuditLog(entity: AuditEntity, entityId: string) {
-  return db.query.auditLog.findMany({
-    where: and(eq(auditLog.entity, entity), eq(auditLog.entityId, entityId)),
-    orderBy: [desc(auditLog.createdAt)],
-    limit: QUERY_LIMITS.entityHistory,
-  })
+export async function getEntityAuditLog(
+  entity: AuditEntity,
+  entityId: string,
+): Promise<AuditEntry[]> {
+  return db
+    .select({
+      id: auditLog.id,
+      createdAt: auditLog.createdAt,
+      action: auditLog.action,
+      entity: auditLog.entity,
+      entityId: auditLog.entityId,
+      reason: auditLog.reason,
+      actorName: user.name,
+    })
+    .from(auditLog)
+    .leftJoin(user, eq(auditLog.userId, user.id))
+    .where(and(eq(auditLog.entity, entity), eq(auditLog.entityId, entityId)))
+    .orderBy(desc(auditLog.createdAt))
+    .limit(QUERY_LIMITS.entityHistory)
 }
 
 /** One audit row with the acting staff member resolved to a name. */

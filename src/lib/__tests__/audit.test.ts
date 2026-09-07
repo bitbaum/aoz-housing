@@ -205,41 +205,52 @@ describe('logAudit', () => {
 // =============================================================================
 
 describe('getEntityAuditLog', () => {
+  // Now a select/leftJoin like its sibling, because the acting user's NAME has
+  // to come back with the row: the history is shown beside a client's dossier,
+  // and "cmsr…8vz changed this" records nothing a person can act on.
   beforeEach(() => {
     vi.clearAllMocks()
-    mockAuditLogFindMany.mockResolvedValue([])
+    mockSelectRows.mockReturnValue([])
   })
 
   test('queries by entity type and entityId', async () => {
     await getEntityAuditLog('RESIDENT', 'res-123')
 
-    const { where } = mockAuditLogFindMany.mock.calls[0][0]
-    expect(whereParts(where)).toEqual({ entity: 'RESIDENT', entityId: 'res-123' })
+    // Both halves matter: the entityId alone would mix a client's own history
+    // with anything else sharing that id, and the entity alone would return
+    // every client's.
+    expect(whereParts(mockWhere.mock.calls[0]?.[0])).toEqual({
+      entity: 'RESIDENT',
+      entityId: 'res-123',
+    })
   })
 
   test('orders results by createdAt descending', async () => {
     await getEntityAuditLog('PLACEMENT', 'p-1')
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        orderBy: [desc(auditLog.createdAt)],
-      }),
-    )
+    expect(mockOrderBy).toHaveBeenCalledWith(desc(auditLog.createdAt))
   })
 
   test('limits results to 50', async () => {
     await getEntityAuditLog('INCIDENT', 'i-1')
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 50 }))
+    expect(mockLimit).toHaveBeenCalledWith(50)
+  })
+
+  test('joins the acting account so the row carries a name', async () => {
+    await getEntityAuditLog('RESIDENT', 'res-1')
+
+    expect(mockLeftJoin).toHaveBeenCalled()
+    expect(mockSelectColumns).toHaveBeenCalledWith(
+      expect.objectContaining({ actorName: expect.anything() }),
+    )
   })
 
   test('returns the rows the query hands back', async () => {
-    const entries = [{ id: 'log-1', action: 'CREATE' }]
-    mockAuditLogFindMany.mockResolvedValue(entries)
+    const entries = [{ id: 'log-1', action: 'CREATE', actorName: 'Franziska Heimhuber' }]
+    mockSelectRows.mockReturnValue(entries)
 
-    const result = await getEntityAuditLog('RESIDENT', 'res-1')
-
-    expect(result).toEqual(entries)
+    await expect(getEntityAuditLog('RESIDENT', 'res-1')).resolves.toEqual(entries)
   })
 })
 
