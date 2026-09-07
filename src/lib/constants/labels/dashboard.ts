@@ -79,6 +79,14 @@ export const DASHBOARD_LABELS = {
   tileFollowUpsAction: 'Der vereinbarte Termin ist verstrichen — nachfassen oder abschliessen.',
   tileOverdueByDays: (days: number) =>
     days === 1 ? 'seit 1 Tag überfällig' : `seit ${days} Tagen überfällig`,
+  // The tile the client-facts feature exists for: an insurance renewal used to
+  // reach staff only as a message from the client asking for help with it.
+  tileRenewalsDue: 'Läuft demnächst ab',
+  tileRenewalsAction: 'Krankenversicherung oder Ausweis erneuern, bevor die Frist verstreicht.',
+  tileRenewalDue: (days: number) =>
+    days === 0 ? 'läuft heute ab' : days === 1 ? 'läuft morgen ab' : `noch ${days} Tage`,
+  tileRenewalExpired: (days: number) =>
+    days === 1 ? 'seit 1 Tag abgelaufen' : `seit ${days} Tagen abgelaufen`,
   tileMessagesWaiting: 'Nachrichten ohne Antwort',
   tileMessagesAction: 'Antworten — die Person wartet auf eine Rückmeldung.',
   tileWaitingSinceDays: (days: number) =>

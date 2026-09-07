@@ -67,6 +67,7 @@ const BASE_PROPS = {
   volunteeringQueue: [],
   waitingThreads: [],
   overdueFollowUps: [],
+  expiringFacts: [],
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,

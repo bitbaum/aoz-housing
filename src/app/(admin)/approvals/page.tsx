@@ -3,7 +3,9 @@ import type { Metadata } from 'next'
 import { PageHeader } from '@/components/ui/Page'
 import { ReviewFactForm } from '@/components/admin/ReviewFactForm'
 import { ownSeat } from '@/lib/client-facts/access'
+import { mayReadFact } from '@/lib/client-facts/policy'
 import { pendingFactQueue } from '@/lib/client-facts/queue'
+import { expiringFacts } from '@/lib/client-facts/renewals'
 import { requirePermission } from '@/lib/auth'
 import { CLIENT_FACT_LABELS as L } from '@/lib/constants/labels'
 import { formatDate } from '@/lib/utils'
@@ -25,15 +27,62 @@ export const dynamic = 'force-dynamic'
 export default async function ApprovalsPage() {
   const viewer = await requirePermission('clientFacts:read')
 
-  const items = await pendingFactQueue({
-    userId: viewer.id,
-    scope: viewer.scope,
-    ownDomain: ownSeat(viewer.role),
-  })
+  const seat = ownSeat(viewer.role)
+
+  const [items, expiring] = await Promise.all([
+    pendingFactQueue({ userId: viewer.id, scope: viewer.scope, ownDomain: seat }),
+    // Same visibility rule as the queue, applied to the two dated kinds: a
+    // Jobcoach sees permits running out and no insurances.
+    expiringFacts(new Date()).then((facts) =>
+      facts.filter((fact) =>
+        mayReadFact(fact.kind, { scope: viewer.scope, seatsForClient: seat ? [seat] : [] }),
+      ),
+    ),
+  ])
 
   return (
     <div className="max-w-3xl space-y-6">
       <PageHeader title={L.queueTitle} description={L.queueSubtitle} />
+
+      {/*
+        Renewals first: an insurance that lapses costs the person their cover,
+        which outranks reading an entry somebody typed last week. This is the
+        surface that carries it, because STAFF_EMAIL_RECIPIENTS is unset on the
+        live box and staff hold no accounts — a mailed reminder reaches nobody.
+      */}
+      {expiring.length > 0 && (
+        <section className="card border-status-warning/30">
+          <h2 className="font-semibold text-ui-text">{L.renewalsTitle}</h2>
+          <p className="mt-1 text-xs text-ui-muted">{L.renewalsHint}</p>
+          <ul className="mt-3 space-y-2">
+            {expiring.map((fact) => (
+              <li
+                key={`${fact.kind}-${fact.id}`}
+                className="flex flex-wrap items-baseline justify-between gap-2 border-t border-ui-border pt-2"
+              >
+                <div>
+                  <span className="font-medium text-ui-text">{residentName(fact.resident)}</span>{' '}
+                  <span className="text-xs text-ui-muted">
+                    {L.kinds[fact.kind]}
+                    {fact.kind === 'PERMIT'
+                      ? ` · ${L.permitTypes[fact.label]}`
+                      : ` · ${fact.label}`}
+                  </span>
+                </div>
+                <span
+                  className={`numeric text-xs ${
+                    fact.daysLeft < 0 ? 'text-status-error-text' : 'text-status-warning-text'
+                  }`}
+                >
+                  {fact.daysLeft < 0
+                    ? L.renewal.expired(Math.abs(fact.daysLeft))
+                    : L.renewal.due(fact.daysLeft)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <p className="text-xs text-ui-muted">{L.confirmMeaning}</p>
 
