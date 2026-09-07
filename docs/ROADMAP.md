@@ -3,8 +3,8 @@
 Related: [Changelog](../CHANGELOG.md) · [Blog](blog/README.md) · [AOZ pitch](AOZ-PITCH.md) · [Integration research framework](./INTEGRATION-RESEARCH-FRAMEWORK.md)
 
 created_date: 2026-01-15
-last_modified_date: 2026-08-19
-last_modified_summary: Reframed the roadmap headline and thesis around integration operations, with housing as the base layer.
+last_modified_date: 2026-09-07
+last_modified_summary: Marketplace ist geliefert, Rollen auf drei Achsen, angebotene Sprachen korrigiert.
 
 ## The thesis
 
@@ -61,12 +61,12 @@ baseline. Everything in H1 serves that.
 - ✅ Signed Hausordnung as the in-app org rule catalog, with per-version
   acknowledgement — done (see changelog).
 - ✅ AOZ vs WG surfaces (nav, expenses/votes, code-first login, fast matching).
-- ✅ Staff roles: Leitung, Betreuung, Sozialarbeit, Jobcoach.
+- ✅ Staff roles on THREE orthogonal axes: care domain (Betreuung, Sozialarbeit, Jobcoach, Freiwilligenarbeit, Liegenschaften), scope (own domain / all domains) and isSystemAdmin. `ADMIN` is retired and unassignable.
 - ✅ Learning records (tests, courses, informal) for residents and Jobcoach.
 - ✅ Learning achievements and volunteering/community-service hours; language offers reuse Aktivitäten.
 - ✅ Role-shaped integration evidence boards: overview, Jobcoach, and Freiwilligenarbeit with filters for own clients, source, status, and category.
-- ✅ Care team (Wohnen, Sozialarbeit, Jobcoach) visible to the resident.
-- ✅ Care workspace: appointments and catalog attributes per domain; one login can be resident + Leitung.
+- ✅ Care team (Wohnen, Sozialarbeit, Jobcoach, Freiwilligenarbeit) visible to the resident.
+- ✅ Care workspace: appointments and catalog attributes per domain; one login can carry both a staff and a client identity.
 - ✅ Portal chrome: collapsible sidebar + header account/language; dead Wohnung/Mitbewohner pages removed.
 - ✅ Room-level matching and a short intake as the default.
 - ✅ Locale packs offered once COMPLETE: DE, EN, FR, UK, RU, AR. Farsi, Tigrinya, Turkish, Albanian and Somali exist in the repo and are deliberately NOT offered — half a portal in your language is worse than all of it in German, because you cannot tell which half you are missing.
@@ -101,8 +101,9 @@ One deployment currently serves one org. The multibillion path requires one
 
 - **Resident-consented portable profiles**: preferences travel with the
   person across orgs (they, not the org, own their compatibility profile).
-- **Marketplace/community layer**: exchange, shared purchases, skills —
-  the expenses engine plus the community feed make retention.
+- **Portable community across sites**: the marketplace SHIPPED (goods and
+  services, deliberately with no price field); what is still ahead is carrying
+  it beyond a single Standort.
 - **Outcome dataset as a public good**: anonymized, aggregate conflict/
   compatibility research back to the field the product came from.
 - Vacancy network across operators in one city — minimizing vacancies

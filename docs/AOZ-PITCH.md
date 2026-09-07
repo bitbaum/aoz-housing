@@ -1,4 +1,4 @@
-# AOZ Begleitung - Integrationsplattform fuer Fachpersonen
+# AOZ Begleitung - Integrationsplattform für Fachpersonen
 
 created_date: 2026-08-19
 last_modified_date: 2026-08-19
@@ -6,20 +6,20 @@ last_modified_summary: Reframed the pitch from a housing-only placement tool to 
 
 ## Kurzfassung
 
-`AOZ Begleitung` ist kein weiteres Einzelsystem fuer einen Teilprozess. Es ist
-eine **Integrationsplattform fuer Fachpersonen**, die Housing-Stabilitaet,
-Sprach- und Lernfortschritt, Arbeitsmarktnaehe, Teilhabe und koordinierte
+`AOZ Begleitung` ist kein weiteres Einzelsystem für einen Teilprozess. Es ist
+eine **Integrationsplattform für Fachpersonen**, die Housing-Stabilität,
+Sprach- und Lernfortschritt, Arbeitsmarktnähe, Teilhabe und koordinierte
 Begleitung in einem gemeinsamen Verlauf sichtbar macht.
 
 Die Housing-Logik bleibt zentral, aber sie ist nicht mehr die ganze Geschichte.
-Stabile Unterbringung ist die Basis. Darauf aufbauend muessen Fachpersonen auch
+Stabile Unterbringung ist die Basis. Darauf aufbauend müssen Fachpersonen auch
 sehen:
 
 - wie es einer Person in der Unterkunft geht
-- welche Vorfaelle, Transfers oder Risiken offen sind
+- welche Vorfälle, Transfers oder Risiken offen sind
 - welche Sprach- und Lernschritte dokumentiert wurden
-- welche Qualifikationen, Jobcoach-Schritte oder Freiwilligeneinsaetze sichtbar sind
-- wer im Care Team als Naechstes handeln muss
+- welche Qualifikationen, Jobcoach-Schritte oder Freiwilligeneinsätze sichtbar sind
+- wer im Care Team als Nächstes handeln muss
 
 ## Das Problem heute
 
@@ -27,25 +27,25 @@ AOZ hat nicht nur ein Platzierungsproblem. AOZ hat ein **Fragmentierungsproblem*
 
 Wichtige Informationen liegen oft getrennt:
 
-- Housing und Vorfaelle in einer operativen Sicht
+- Housing und Vorfälle in einer operativen Sicht
 - Sprach- und Lernfortschritt an anderer Stelle
 - Jobcoach-relevante Hinweise in Notizen oder einzelnen Dossiers
-- Rueckmeldungen von Klient*innen in Nachrichten, Telefonaten oder Papier
-- offene Follow-ups im Kopf der zustaendigen Person
+- Rückmeldungen von Klient*innen in Nachrichten, Telefonaten oder Papier
+- offene Follow-ups im Kopf der zuständigen Person
 
-Das fuehrt zu drei wiederkehrenden Kosten:
+Das führt zu drei wiederkehrenden Kosten:
 
-1. **Instabilitaet**  
-   Konflikte, verpasste Rueckmeldungen und unklare Verantwortung erzeugen
-   Eskalationen, Umzuege und unnötige Schleifen.
+1. **Instabilität**  
+   Konflikte, verpasste Rückmeldungen und unklare Verantwortung erzeugen
+   Eskalationen, Umzüge und unnötige Schleifen.
 
 2. **Verlorene Betreuungszeit**  
-   Fachpersonen suchen Informationen, koordinieren parallel und muessen Dinge
+   Fachpersonen suchen Informationen, koordinieren parallel und müssen Dinge
    nachfassen, die im System eigentlich sichtbar sein sollten.
 
 3. **Unsichtbarer Fortschritt**  
    Kurse, Sprachtests, Qualifikationen, Freiwilligenarbeit oder Alltagsfortschritte
-   werden zwar erfasst, aber oft nicht so dargestellt, dass daraus naechste
+   werden zwar erfasst, aber oft nicht so dargestellt, dass daraus nächste
    Schritte entstehen.
 
 ## Die Produktlogik
@@ -54,9 +54,9 @@ Das Produkt folgt vier operativen Pfeilern:
 
 ### 1. Stability
 
-Housing, Sicherheit, Vorfaelle, Transfers und Regeln.
+Housing, Sicherheit, Vorfälle, Transfers und Regeln.
 
-Hier geht es um die operative Stabilitaet der Unterbringung:
+Hier geht es um die operative Stabilität der Unterbringung:
 
 - passende Platzierungen
 - nachvollziehbare Transfer- und Verlaufsentscheide
@@ -67,17 +67,17 @@ Hier geht es um die operative Stabilitaet der Unterbringung:
 
 Sprache, Kurse, Qualifikationen und Arbeitsmarktnähe.
 
-Hier geht es darum, Fortschritt nicht nur zu speichern, sondern fuer
+Hier geht es darum, Fortschritt nicht nur zu speichern, sondern für
 Sozialarbeit und Jobcoach **verwertbar** zu machen:
 
 - Sprachtests und Kursnachweise
-- Qualifikationen und Abschluesse
+- Qualifikationen und Abschlüsse
 - arbeitsmarktbezogene Schritte
 - evidenzbasierte Boards statt lose Dokumentation
 
 ### 3. Participation
 
-Freiwilligenarbeit, Gemeinschaftsaktivitaeten, soziale Teilhabe und
+Freiwilligenarbeit, Gemeinschaftsaktivitäten, soziale Teilhabe und
 Alltagsorientierung.
 
 Das ist wichtig, weil Integration nicht nur aus Housing-Ruhe und einem
@@ -85,11 +85,11 @@ Sprachniveau besteht. Sichtbare Teilnahme ist ein eigenes Fortschrittssignal.
 
 ### 4. Guidance
 
-Care Team, Follow-ups, Nachrichten, naechste Schritte.
+Care Team, Follow-ups, Nachrichten, nächste Schritte.
 
 Das ist der operative Kitt:
 
-- wer fuer welche Person zustaendig ist
+- wer für welche Person zuständig ist
 - welche Nachricht unbeantwortet ist
 - welches Follow-up offen ist
 - ob ein Nutzerpfad sauber abgeschlossen wurde
@@ -98,47 +98,47 @@ Das ist der operative Kitt:
 
 Die Demo zeigt kein Konzeptdeck, sondern das laufende Produkt.
 
-### Fuer Leitung und Betreuung
+### Für Leitung und Betreuung
 
 - Fachpersonen-Dashboard mit klientenbezogener Sicht
-- Housing, Vorfaelle, Transfers und Check-ins
-- Matching mit erklaerbarer Logik
+- Housing, Vorfälle, Transfers und Check-ins
+- Matching mit erklärbarer Logik
 - Care Team und Follow-ups
 
-### Fuer Sozialarbeit und Jobcoach
+### Für Sozialarbeit und Jobcoach
 
-- rollenfoermige Boards statt nur technische Listen
-- Integrations-Evidenz fuer Sprache, Kurse, Qualifikationen und Arbeit
-- Filter fuer eigene Klient*innen, Status, Kategorie und Quelle
-- klare naechste Schritte statt totes Archiv
+- rollenförmige Boards statt nur technische Listen
+- Integrations-Evidenz für Sprache, Kurse, Qualifikationen und Arbeit
+- Filter für eigene Klient*innen, Status, Kategorie und Quelle
+- klare nächste Schritte statt totes Archiv
 
-### Fuer Klient*innen
+### Für Klient*innen
 
 - mehrsprachiges Portal
 - Nachrichten, Hilfe und Meldungen
 - eigene Integrations-Evidenz erfassen
-- sichtbare Orientierung ueber offene und abgeschlossene Schritte
+- sichtbare Orientierung über offene und abgeschlossene Schritte
 
-## Warum das glaubwuerdig ist
+## Warum das glaubwürdig ist
 
 Die Produktthese ist bewusst diszipliniert:
 
-- **kein Black-Box-Score** ueber Menschen
+- **kein Black-Box-Score** über Menschen
 - **keine** medizinischen Diagnosen
 - **keine** Dossierdetails ohne operative Notwendigkeit
 - **keine** religiösen oder politischen Angaben
 - **keine** normative "Integrationsnote"
 
-Das System misst keine Person als Ganzes. Es zeigt Zustaende, Fortschritt,
+Das System misst keine Person als Ganzes. Es zeigt Zustände, Fortschritt,
 offene Arbeit und nachvollziehbare Evidenz.
 
 ## Pilotvorschlag
 
 ### Phase 1 - Baseline
 
-Gemeinsam festlegen, welche Kennzahlen fuer AOZ operativ wirklich zaehlen:
+Gemeinsam festlegen, welche Kennzahlen für AOZ operativ wirklich zählen:
 
-- Vorfaelle
+- Vorfälle
 - konfliktbedingte Verlegungen
 - Antwort- und Follow-up-Zeiten
 - dokumentierte Sprach- und Integrationsschritte
@@ -146,7 +146,7 @@ Gemeinsam festlegen, welche Kennzahlen fuer AOZ operativ wirklich zaehlen:
 ### Phase 2 - Pilot
 
 Pilot an 1 bis 2 Standorten mit echten Fachpersonen-Rollen und echten
-Alltagsablaeufen.
+Alltagsabläufen.
 
 Wichtig ist nicht nur, ob Daten erfasst werden, sondern ob die Mitarbeitenden
 schneller zu einer guten Handlung kommen.
@@ -156,21 +156,21 @@ schneller zu einer guten Handlung kommen.
 Nach dem Pilot ist klarer beurteilbar:
 
 - wo das Produkt Zeit spart
-- wo es Stabilitaet schafft
+- wo es Stabilität schafft
 - wo Integrationsfortschritt sichtbarer wird
 - welche AOZ-spezifischen Erweiterungen priorisiert werden sollen
 
-## Was AOZ dafuer nicht braucht
+## Was AOZ dafür nicht braucht
 
 - keine neue Hardware
-- keine grosse IT-Einfuehrung
+- keine grosse IT-Einführung
 - keine Prozessrevolution vor dem Pilot
 - keine Preisgabe sensibler Daten, die operativ nichts bringen
 
-## Gewuenschter naechster Schritt
+## Gewünschter nächster Schritt
 
 **Demo mit AOZ-Fachpersonen**:
 
 1. reale Arbeitswege zeigen
-2. offene Rueckfragen aufnehmen
+2. offene Rückfragen aufnehmen
 3. Pilot-Set-up mit Rollen und Erfolgskriterien festlegen

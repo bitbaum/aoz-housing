@@ -1,4 +1,4 @@
-# AOZ Housing — Resident Portal v1.1 Sign-off
+# AOZ Begleitung — Resident Portal v1.1 Sign-off
 
 Date: 2026-02-18  
 Owner: Anthropig  

@@ -1,4 +1,4 @@
-# AOZ Housing — Resident Portal Workflow Checklist
+# AOZ Begleitung — Resident Portal Workflow Checklist
 
 Purpose: practical QA/UX checklist for resident-facing workflows.  
 Use this as a runbook during testing and sign-off.

@@ -1,4 +1,4 @@
-# AOZ Housing — Resident Portal UX Master Plan
+# AOZ Begleitung — Resident Portal UX Master Plan
 
 created_date: 2026-02-01
 last_modified_date: 2026-08-17
