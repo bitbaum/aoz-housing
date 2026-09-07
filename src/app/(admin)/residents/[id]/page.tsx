@@ -41,6 +41,9 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getEntityAuditLog } from '@/lib/audit'
+import { clientFactsForDossier } from '@/lib/client-facts/dossier'
+import { seatsForClient } from '@/lib/client-facts/access'
+import { ClientFactsCard } from '@/components/residents/ClientFactsCard'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { getPlacementCheckIns } from '@/lib/actions'
 import {
@@ -111,6 +114,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     documents,
     opportunityThreads,
     residentHistory,
+    clientFacts,
   ] = await Promise.all([
     db.query.resident.findFirst({
       where: eq(residentTable.id, id),
@@ -179,6 +183,15 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     // names, so this cannot reveal that an insurance entry exists to a viewer
     // who may not read that kind.
     getEntityAuditLog('RESIDENT', id),
+    // The client's own admin facts, narrowed by the SAME per-kind rule the
+    // approval queue uses. A kind this viewer may not read is a query never
+    // issued — the seats are fetched first because the policy takes them as
+    // data rather than going to the database itself.
+    staff
+      ? seatsForClient(staff.id, id).then((seats) =>
+          clientFactsForDossier(id, { scope: staff.scope, seatsForClient: seats }),
+        )
+      : Promise.resolve(null),
   ])
 
   if (!resident) {
@@ -610,6 +623,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
           {/* Placement History */}
           <PlacementHistoryCard placements={pastPlacements} />
+
+          {clientFacts && <ClientFactsCard facts={clientFacts} />}
 
           {/*
             Who changed this record, and when.
