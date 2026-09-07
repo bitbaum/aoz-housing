@@ -19,6 +19,13 @@ export const CLIENT_FACT_LABELS = {
 
   // Renewals sit ABOVE the queue: a lapsing insurance costs someone their
   // cover, which outranks reading an entry from last week.
+  // On the client's dossier. Every one of these was invisible to staff the
+  // moment it was confirmed — the queue only ever shows what is unchecked.
+  dossierTitle: 'Eigene Angaben der Klient*in',
+  dossierHint:
+    'Von der Klient*in selbst erfasst. Diese Angaben fliessen nie in Zuteilung, Bewertung oder Statistik ein.',
+  dossierEmpty: 'Nichts hinterlegt.',
+
   renewalsTitle: 'Läuft demnächst ab',
   renewalsHint:
     'Krankenversicherungen und Ausweise, die in den nächsten 60 Tagen ablaufen oder bereits abgelaufen sind.',
