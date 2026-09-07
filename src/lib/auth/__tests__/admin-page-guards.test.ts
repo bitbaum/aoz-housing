@@ -43,9 +43,6 @@ const SESSION_IS_ENOUGH = new Set([
   // The dashboard composes from per-area queries that each apply their own
   // boundary; it is the landing page every staff member must reach.
   'page.tsx',
-  // Governance surfaces: house rules and decisions are shared across
-  // disciplines by design — the whole point is one rule book.
-  'rules/page.tsx',
   'rules/decisions/page.tsx',
   // REMOVED 2026-09-05. The entry read "Scoped per thread, not per role" — and
   // that scoping did not exist. `staffInbox()` is a `findMany` over EVERY

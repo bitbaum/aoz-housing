@@ -79,7 +79,14 @@ describe('role policy smoke checks', () => {
     // which all four care roles hold, making it a check nobody fails, the
     // exact error the message surfaces shipped with. Naming it is what lets
     // Liegenschaften NOT hold it.
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(27)
+    //
+    // 28 since `governance:confirm` was named. Every action in
+    // actions/governance.ts took `requireStaffAuth()` — a session, not a
+    // right — so any staff member could confirm a house decision or archive an
+    // AOZ rule. The dashboard queue for it rode on `housing:read`, which
+    // quietly handed it to LIEGENSCHAFTEN the day that role was added.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(28)
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('governance:confirm')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('clientFacts:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('messages:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('ai:assist')

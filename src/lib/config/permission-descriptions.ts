@@ -45,6 +45,9 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   // role may see for the clients it holds, so a precise list here would be
   // wrong for three of the four roles that hold it.
   'clientFacts:read': 'Selbst erfasste Angaben der eigenen Klient*innen prüfen',
+  // Answering the household, not reading its rules — the rule book itself stays
+  // on housing:read so the person who runs the building can read it.
+  'governance:confirm': 'Anträge der Häuser beantworten und den Regelkatalog pflegen',
   'documents:read': 'Lebenslauf, Zeugnisse und Referenzen einsehen',
   'documents:write': 'Lebenslauf, Zeugnisse und Referenzen hinzufügen und entfernen',
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',

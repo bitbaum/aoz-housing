@@ -49,11 +49,15 @@ export const DASHBOARD_SECTIONS = {
   /** Pending transfer-request queue — resolved on /transfer-requests. */
   transferRequests: 'placements:write',
   /**
-   * Proposals awaiting a staff answer — resolved on /rules. Gated like the
-   * /rules nav item itself (see MEGAMENU_GROUPS), not by a governance-specific
-   * permission that does not exist.
+   * Proposals awaiting a staff answer — resolved on /rules.
+   *
+   * A WORK QUEUE, so it is gated on being able to do the work rather than on
+   * being able to read the page. It used to ride on `housing:read` because no
+   * governance permission existed; that handed the queue to LIEGENSCHAFTEN the
+   * day that role was added, and this queue is where safety and
+   * non-discrimination topics land.
    */
-  proposals: 'housing:read',
+  proposals: 'governance:confirm',
   /** Learning pulse — in-progress records and recent completions. */
   learning: 'learning:read',
   /** Upcoming published events. */
