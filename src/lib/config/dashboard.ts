@@ -141,10 +141,12 @@ export const DASHBOARD_FALLBACK_CTAS: readonly {
  * button.
  */
 const DOMAIN_HOME: Partial<Record<StaffRole, { href: string; labelKey: DashboardCtaLabelKey }>> = {
-  JOBCOACH: {
-    href: `/opportunities?board=${defaultIntegrationBoardForRole('JOBCOACH')}`,
-    labelKey: 'actionOpenJobBoard',
-  },
+  // JOBCOACH is deliberately ABSENT. "Lernen & Beruf" covers Simon's domain by
+  // name — learning and work — so the generic ladder already lands him on
+  // something that is his, and two existing tests pin that on purpose.
+  // Sandra is the one it mis-routes: nothing about Lernen & Beruf is
+  // Freiwilligenarbeit. Redirecting Simon as well was an over-reach; the
+  // suite caught it.
   FREIWILLIGENARBEIT: {
     href: `/opportunities?board=${defaultIntegrationBoardForRole('FREIWILLIGENARBEIT')}`,
     labelKey: 'actionOpenVolunteering',

@@ -31,21 +31,21 @@ describe('a specialist lands on their own board', () => {
     expect(cta.href).toContain('board=volunteering')
   })
 
-  it('sends the Jobcoach to the job board', () => {
-    const cta = fallbackCta(viewer('JOBCOACH'))
-    expect(cta.labelKey).toBe('actionOpenJobBoard')
-    expect(cta.href).toContain('board=job')
+  it('leaves the Jobcoach on Lernen & Beruf, which is his by name', () => {
+    // Deliberate, and pinned by two older tests: the surface is called
+    // "Lernen & Beruf" — learning AND work — so the generic ladder already
+    // lands Simon somewhere that belongs to him. Redirecting him too was an
+    // over-reach in the first version of this change.
+    expect(fallbackCta(viewer('JOBCOACH')).labelKey).toBe('actionOpenLearning')
   })
 
   it('agrees with the board the nav opens for that role', () => {
     // One SSOT decides which board a role belongs on. If this button and the
-    // nav ever disagree, a coach is invited somewhere their own menu does not
-    // take them.
-    for (const role of ['JOBCOACH', 'FREIWILLIGENARBEIT'] as const) {
-      expect(fallbackCta(viewer(role)).href).toContain(
-        `board=${defaultIntegrationBoardForRole(role)}`,
-      )
-    }
+    // nav ever disagree, a coordinator is invited somewhere her own menu does
+    // not take her.
+    expect(fallbackCta(viewer('FREIWILLIGENARBEIT')).href).toContain(
+      `board=${defaultIntegrationBoardForRole('FREIWILLIGENARBEIT')}`,
+    )
   })
 })
 
