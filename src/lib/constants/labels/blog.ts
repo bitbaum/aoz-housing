@@ -16,4 +16,6 @@ export const BLOG_LABELS = {
   /** Shown under the post title, before the date. */
   published: 'Veröffentlicht',
   readMore: 'Weiterlesen',
+  /** Heading of the sticky table of contents on wide screens. */
+  tocTitle: 'Inhalt',
 } as const

@@ -1,17 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'fs'
 import { join } from 'path'
 import { getAllPosts, getPostBySlug } from '@/lib/blog/posts'
-import { renderMarkdown } from '@/lib/blog/markdown'
-
-vi.mock('marked', async () => ({
-  Marked: class {
-    parse(input: string) {
-      if (input.includes('|---|'))
-        return '<table><thead><tr><th>a</th><th>b</th></tr></thead></table>'
-      return input.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    }
-  },
-}))
+import { collectLinkHrefs, parsePostBlocks } from '@/lib/blog/blocks'
 
 const BLOG_DIR = join(process.cwd(), 'docs', 'blog')
 
@@ -100,42 +90,46 @@ describe('blog posts', () => {
   })
 })
 
-describe('blog markdown rendering', () => {
-  it('rewrites links between posts to their routes', () => {
-    const html = renderMarkdown('See [that one](2026-08-14-cohabitation-os.md).')
+describe('blog block rendering', () => {
+  const hrefsOf = (markdown: string) => collectLinkHrefs(parsePostBlocks(markdown).blocks)
 
-    expect(html).toContain('href="/blog/cohabitation-os"')
-    expect(html).not.toContain('.md')
+  it('rewrites links between posts to their routes', () => {
+    const hrefs = hrefsOf('See [that one](2026-08-14-cohabitation-os.md).')
+
+    expect(hrefs).toEqual(['/blog/cohabitation-os'])
   })
 
   it('keeps a fragment when rewriting', () => {
-    const html = renderMarkdown('[x](2026-08-14-cohabitation-os.md#why)')
-    expect(html).toContain('href="/blog/cohabitation-os#why"')
+    expect(hrefsOf('[x](2026-08-14-cohabitation-os.md#why)')).toEqual(['/blog/cohabitation-os#why'])
   })
 
   it('leaves external links alone', () => {
-    const html = renderMarkdown('[docs](https://example.com/a.md)')
-    expect(html).toContain('href="https://example.com/a.md"')
+    expect(hrefsOf('[docs](https://example.com/a.md)')).toEqual(['https://example.com/a.md'])
   })
 
   it('points a link to another repo doc at that file on GitHub', () => {
     // `../ROADMAP.md` is a real link in a real post. It reads correctly in the
     // repo and 404s on the web, so it resolves to where the file is published.
-    const html = renderMarkdown('the [roadmap](../ROADMAP.md)')
+    expect(hrefsOf('the [roadmap](../ROADMAP.md)')).toEqual([
+      'https://github.com/bitbaum/aoz-housing/blob/master/docs/ROADMAP.md',
+    ])
+  })
 
-    expect(html).toContain(
-      'href="https://github.com/bitbaum/aoz-housing/blob/master/docs/ROADMAP.md"',
-    )
+  it('rewrites links inside table cells too', () => {
+    // The rewrite runs on the raw markdown before parsing, so every surface a
+    // link can appear on — including GFM table cells — is covered by one pass.
+    const hrefs = hrefsOf('| a |\n|---|\n| [x](2026-08-14-cohabitation-os.md) |')
+
+    expect(hrefs).toEqual(['/blog/cohabitation-os'])
   })
 
   it('never serves a real post with a link to a .md file', () => {
     // The failure this prevents is a 404 on the live site that renders as a
     // perfectly normal-looking link.
     for (const post of posts) {
-      const html = renderMarkdown(post.body)
-      const brokenLinks = Array.from(html.matchAll(/href="([^"]*\.md[^"]*)"/g))
-        .map((match) => match[1])
-        .filter((href) => !href.startsWith('http'))
+      const brokenLinks = hrefsOf(post.body).filter(
+        (href) => href.includes('.md') && !href.startsWith('http'),
+      )
 
       expect({ slug: post.slug, brokenLinks }).toEqual({ slug: post.slug, brokenLinks: [] })
     }
@@ -146,23 +140,28 @@ describe('blog markdown rendering', () => {
     // see into something only a reader can — unless the target is checked
     // against the working tree, which is the one place that knows.
     const repoRoot = process.cwd()
+    const GITHUB_FILE = /^https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/master\/([^#]+)/
 
     for (const post of posts) {
-      const html = renderMarkdown(post.body)
-      const missing = Array.from(
-        html.matchAll(/href="https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/master\/([^"#]+)"/g),
-      )
-        .map((match) => match[1])
+      const missing = hrefsOf(post.body)
+        .map((href) => GITHUB_FILE.exec(href)?.[1])
+        .filter((path): path is string => path !== undefined)
         .filter((path) => !existsSync(join(repoRoot, path)))
 
       expect({ slug: post.slug, missing }).toEqual({ slug: post.slug, missing: [] })
     }
   })
 
-  it('renders GFM tables, which the posts rely on', () => {
-    const html = renderMarkdown('| a | b |\n|---|---|\n| 1 | 2 |')
+  it('parses GFM tables into table blocks, which the posts rely on', () => {
+    const { blocks } = parsePostBlocks('| a | b |\n|---|---|\n| 1 | 2 |')
 
-    expect(html).toContain('<table>')
-    expect(html).toContain('<th>')
+    expect(blocks).toEqual([{ type: 'table', headers: ['a', 'b'], rows: [['1', '2']] }])
+  })
+
+  it('gives every heading a stable anchor id and lists it in the TOC', () => {
+    const { blocks, toc } = parsePostBlocks('## Über uns\n\ntext\n\n## Der zweite Teil\n')
+
+    expect(blocks[0]).toMatchObject({ type: 'h2', id: 'ueber-uns' })
+    expect(toc.map((entry) => entry.id)).toEqual(['ueber-uns', 'der-zweite-teil'])
   })
 })
