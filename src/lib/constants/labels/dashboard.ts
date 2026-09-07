@@ -160,6 +160,11 @@ export const DASHBOARD_LABELS = {
   actionMaintenanceTicket: 'Wartungsticket',
   actionCreateResident: 'Neue*n Klient*in erfassen',
   actionOpenLearning: `${LEARNING_AREA_NAME} öffnen`,
+  // A specialist's own board. The generic list would send anyone holding
+  // learning:write to Lernen & Beruf, which is the Jobcoach's home and not
+  // the Freiwilligenarbeit coordinator's.
+  actionOpenJobBoard: 'Einsatzplätze öffnen',
+  actionOpenVolunteering: 'Freiwilligenarbeit öffnen',
   actionViewStats: 'Statistiken ansehen',
 
   /** Names what the hero block is, now that it is no longer a coloured slab. */

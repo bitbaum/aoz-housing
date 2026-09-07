@@ -144,13 +144,23 @@ describe('fallbackCta', () => {
     ).toBe('/residents/new')
   })
 
-  it('offers learning to coaching roles without residents:write', () => {
+  it('offers learning to the Jobcoach, whose domain it names', () => {
+    // "Lernen & Beruf" is learning AND work, so the generic ladder lands Simon
+    // on something that is his.
     expect(fallbackCta({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href).toBe(
       '/learning',
     )
+  })
+
+  it('does NOT offer learning to Freiwilligenarbeit', () => {
+    // This assertion used to say '/learning' for her too, and that was the
+    // bug: Sandra holds learning:write, so a ladder matched on permission
+    // alone gave her one quiet-day button and it opened the Jobcoach's
+    // surface. Nothing about Lernen & Beruf is Freiwilligenarbeit.
+    // @see config/__tests__/quiet-day-cta.test.ts
     expect(
       fallbackCta({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href,
-    ).toBe('/learning')
+    ).toContain('board=volunteering')
   })
 
   it('final fallback is gated on a permission every role holds', () => {

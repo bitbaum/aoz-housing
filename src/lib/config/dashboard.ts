@@ -18,6 +18,7 @@ import {
   type StaffPermission,
   type StaffRole,
 } from '@/lib/auth/role-policy'
+import { defaultIntegrationBoardForRole } from '@/lib/config/integration-boards'
 
 export const DASHBOARD_SECTIONS = {
   /** Free-beds stat. */
@@ -106,17 +107,60 @@ export function sectionVisible(viewer: StaffCapabilities, section: DashboardSect
  * intake, learning is the coaching roles' home, analytics is readable by
  * every staff role and therefore the guaranteed last resort.
  */
+/** Every label a quiet-day button may carry. Narrow on purpose: the call
+ *  sites index DASHBOARD_LABELS with it, so `string` would break them. */
+export type DashboardCtaLabelKey =
+  | 'actionCreateResident'
+  | 'actionOpenLearning'
+  | 'actionViewStats'
+  | 'actionOpenJobBoard'
+  | 'actionOpenVolunteering'
+
 export const DASHBOARD_FALLBACK_CTAS: readonly {
   permission: StaffPermission
   href: string
-  labelKey: 'actionCreateResident' | 'actionOpenLearning' | 'actionViewStats'
+  labelKey: DashboardCtaLabelKey
 }[] = [
   { permission: 'residents:write', href: '/residents/new', labelKey: 'actionCreateResident' },
   { permission: 'learning:write', href: '/learning', labelKey: 'actionOpenLearning' },
   { permission: 'dashboard:read', href: '/analytics', labelKey: 'actionViewStats' },
 ]
 
-export function fallbackCta(viewer: StaffCapabilities): (typeof DASHBOARD_FALLBACK_CTAS)[number] {
+/**
+ * Where a role's own work lives when nothing is urgent.
+ *
+ * Checked BEFORE the generic list, because that list is ordered by permission
+ * alone and its second entry is `learning:write` — "the coaching roles' home",
+ * which is true of a Jobcoach and false of everyone else holding the
+ * permission. Sandra runs Freiwilligenarbeit, holds `learning:write`, and her
+ * quiet-day screen therefore invited her into Simon's surface. Found by
+ * opening her dashboard, not by reading this file.
+ *
+ * Derived from the SAME function that decides which board each role opens on,
+ * so a role can never be sent to one board by the nav and another by this
+ * button.
+ */
+const DOMAIN_HOME: Partial<Record<StaffRole, { href: string; labelKey: DashboardCtaLabelKey }>> = {
+  // JOBCOACH is deliberately ABSENT. "Lernen & Beruf" covers Simon's domain by
+  // name — learning and work — so the generic ladder already lands him on
+  // something that is his, and two existing tests pin that on purpose.
+  // Sandra is the one it mis-routes: nothing about Lernen & Beruf is
+  // Freiwilligenarbeit. Redirecting Simon as well was an over-reach; the
+  // suite caught it.
+  FREIWILLIGENARBEIT: {
+    href: `/opportunities?board=${defaultIntegrationBoardForRole('FREIWILLIGENARBEIT')}`,
+    labelKey: 'actionOpenVolunteering',
+  },
+}
+
+export function fallbackCta(viewer: StaffCapabilities): {
+  href: string
+  labelKey: DashboardCtaLabelKey
+} {
+  // A specialist's own board beats a generic permission match.
+  const home = DOMAIN_HOME[viewer.role]
+  if (home && hasPermission(viewer, 'opportunities:read')) return home
+
   // dashboard:read is in every role, so the find can never miss.
   return DASHBOARD_FALLBACK_CTAS.find((cta) => hasPermission(viewer, cta.permission))!
 }
