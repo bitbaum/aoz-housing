@@ -7,6 +7,20 @@ interface PortalQuickActionsProps {
   pendingChoresCount: number
 }
 
+/**
+ * The "Jetzt" card answers one question: what needs you right now?
+ *
+ * With no chores open it used to answer "Präferenzen — Nächste Aufgabe": a
+ * description belonging to the chores branch, left on a card that links to a
+ * settings page. So a resident with nothing to do was told a task was waiting,
+ * and sent to a form to look for it. Found by reading George's own dashboard,
+ * where the real answer is genuinely "nothing" — the demo resident always has
+ * a chore, so the branch never showed up in a walkthrough.
+ *
+ * Saying "nothing is open" is the whole value of the card on a quiet day, and
+ * it is only worth anything if it is true. Preferences stays reachable — it
+ * keeps its own button in the row beside this one.
+ */
 export async function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
   const { t } = await getRequestTranslator()
 
@@ -19,10 +33,10 @@ export async function PortalQuickActions({ pendingChoresCount }: PortalQuickActi
           icon: ClipboardCheck,
         }
       : {
-          href: '/portal/preferences',
-          title: t('dashboard.quickPreferences'),
-          description: t('dashboard.nextDesc'),
-          icon: Settings2,
+          href: '/portal/chores',
+          title: t('dashboard.nothingDue'),
+          description: t('dashboard.nothingDueDesc'),
+          icon: ClipboardCheck,
         }
 
   const PrimaryIcon = primary.icon
