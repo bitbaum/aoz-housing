@@ -12,6 +12,7 @@ import {
   MAINTENANCE_PRIORITY_LABELS,
 } from '@/lib/constants/labels'
 import { BRAND } from '@/lib/config/brand'
+import { getAppUrl } from '@/lib/config/app-url'
 import { EMAIL_COLORS } from './tokens'
 
 // -- Template data interfaces --
@@ -427,6 +428,63 @@ export function newTransferRequestNotification(data: TransferRequestData): {
       <strong>Grund:</strong> ${escapeHtml(data.reason)}
     </p>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie die Anfrage im ${BRAND.productName} System.</p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+/**
+ * Insurances and permits running out — a POINTER, never the facts themselves.
+ *
+ * Who may read a client fact is decided per person by `mayReadFact`: an
+ * insurance is for Betreuung and Sozialarbeit, a permit additionally for the
+ * Jobcoach, and Liegenschaften sees neither. Email cannot honour that.
+ * `notifyStaff` sends to one shared address out of `STAFF_EMAIL_RECIPIENTS`,
+ * so anything written into this body reaches every reader of that inbox
+ * regardless of role — and it is exactly the sensitive half: who, which
+ * insurer, which permit letter.
+ *
+ * So the email carries a COUNT and a link. The page behind the link applies
+ * the reader policy to whoever actually signs in. The mail's job is to make
+ * someone look before a document lapses, and it does that job without becoming
+ * the leak. Same rule the rest of this codebase follows: the payload is the
+ * leak, not the markup.
+ *
+ * Restating the count in the subject is deliberate — a notification preview is
+ * often all that gets read on a phone, and "3" is not a disclosure.
+ */
+export function renewalReminder(
+  count: number,
+  soonestDaysLeft: number,
+): {
+  subject: string
+  html: string
+} {
+  const noun = count === 1 ? 'Dokument läuft' : 'Dokumente laufen'
+  const subject = `[${BRAND.productName}] ${count} ${noun} ab`
+
+  const urgency =
+    soonestDaysLeft < 0
+      ? 'Mindestens eines ist bereits abgelaufen.'
+      : soonestDaysLeft === 0
+        ? 'Mindestens eines läuft heute ab.'
+        : soonestDaysLeft === 1
+          ? 'Das dringendste läuft morgen ab.'
+          : `Das dringendste läuft in ${soonestDaysLeft} Tagen ab.`
+
+  const url = `${getAppUrl()}/approvals`
+
+  const html = `
+    <h2 style="${STYLES.header}">Krankenversicherungen und Ausweise</h2>
+    <p style="${STYLES.paragraph}">
+      ${count} ${noun} demnächst ab. ${urgency}
+    </p>
+    <p style="${STYLES.paragraph}">
+      Wer betroffen ist, steht in ${BRAND.productName} — dort sieht jede
+      Fachperson genau die Angaben, für die sie zuständig ist:<br>
+      <a href="${url}">${url}</a>
+    </p>
     ${emailFooter()}
   `
 
