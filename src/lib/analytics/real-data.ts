@@ -111,12 +111,27 @@ export function belongsToSameWorld(subjectIsDemo: boolean, candidateIsDemo: bool
  */
 export async function loadDemoScope(): Promise<DemoScope> {
   const [residents, units] = await Promise.all([
-    db.query.resident.findMany({ columns: { id: true, code: true } }),
+    db.query.resident.findMany({ columns: { id: true, code: true, isPlaceholder: true } }),
     db.query.housingUnit.findMany({ columns: { id: true, code: true } }),
   ])
 
   return {
-    residentIds: new Set(residents.filter((r) => isDemoResidentCode(r.code)).map((r) => r.id)),
+    // TWO KINDS OF "not a real person", and both must be out of the numbers.
+    //
+    // A demo CODE is the old prefix-based world: rows the scoped reset could
+    // delete. A PLACEHOLDER is the durable kind — a seeded profile with a
+    // plausible name and a real code, waiting for the person who will claim it
+    // at /register. It carries no prefix on purpose, because the code has to
+    // survive the takeover and a code cannot be re-prefixed afterwards.
+    //
+    // Leaving placeholders in would not merely inflate a headcount, it would
+    // bend the numbers the WRONG WAY: a seeded profile nobody is serving reads
+    // as a client with no labour-market contact and no German level recorded,
+    // so the more of them exist, the worse the service looks. Exactly the
+    // failure that let demo conflicts report "67% mehr Konflikte".
+    residentIds: new Set(
+      residents.filter((r) => isDemoResidentCode(r.code) || r.isPlaceholder).map((r) => r.id),
+    ),
     unitIds: new Set(units.filter((u) => isDemoUnitCode(u.code)).map((u) => u.id)),
   }
 }

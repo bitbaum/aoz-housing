@@ -7,15 +7,18 @@
  * public BY DESIGN; safety comes from the reset (api/cron/reset-demo), the
  * login rate limit, and the operator opt-in via env.
  *
- * Two reset scopes (DEMO_RESET_SCOPE):
- * - 'unit' (DEFAULT): only the dedicated demo apartment is torn down and
- *   reseeded. Safe on instances holding real data — the demo lives alongside
- *   it, isolated by the portal's unit scoping.
- * - 'full': truncate-everything + AOZ presentation narrative. ONLY for
- *   dedicated demo deployments; must be opted into explicitly.
+ * ⚠️ THERE IS NO LONGER A DEMO WORLD TO RESET. The fabricated one — 15
+ * invented residents in 5 `DEMO-` units, truncated and re-seeded nightly — was
+ * deleted from production on 2026-09-08 along with its seed, its two reset
+ * scopes and its cron endpoint. What remains here is the DOOR: which no-account
+ * logins this deployment offers into the real product.
  *
- * Relative-import-safe (no '@/' aliases): prisma/seed-demo.ts loads this
- * through ts-node, which does not resolve tsconfig path aliases.
+ * The data behind that door is now real flats holding CLAIMABLE PLACEHOLDER
+ * profiles (`scripts/db/seed-placeholders.ts`), which persist precisely because
+ * a profile you can take over must survive the night.
+ *
+ * Relative-import-safe (no '@/' aliases): seeding scripts load this through
+ * ts-node, which does not resolve tsconfig path aliases.
  */
 
 // Relative on purpose — see the note above about ts-node and path aliases.
@@ -26,18 +29,15 @@ export function isDemoEnabled(): boolean {
   return process.env.DEMO_ACCESS_ENABLED === 'true'
 }
 
-export type DemoResetScope = 'UNIT' | 'FULL'
-
-/** Default is the safe scope; the destructive full wipe is explicit opt-in. */
-export function getDemoResetScope(): DemoResetScope {
-  return process.env.DEMO_RESET_SCOPE === 'full' ? 'FULL' : 'UNIT'
-}
-
 /**
  * The demo staff login code. A DEDICATED account (not a real admin's code) so
  * drive-by demo sessions never share a real staff member's identity or audit
- * trail. Re-upserted on every reset, so a demo visitor renaming or breaking
- * it self-heals within a day.
+ * trail.
+ *
+ * It no longer self-heals nightly, because there is no nightly reset: the
+ * account is provisioned once, like any other staff account. `DEMO_RESET_SCOPE`
+ * and `getDemoResetScope()` were removed with the fabricated world they chose
+ * between.
  */
 export function getDemoStaffCode(): string | null {
   return process.env.DEMO_STAFF_CODE || null

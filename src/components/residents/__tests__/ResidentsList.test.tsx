@@ -27,23 +27,36 @@ vi.mock('@/components/residents/ResidentCardActions', async () => ({
   ),
 }))
 
-vi.mock('@/lib/constants', async () => ({
-  AGE_RANGE_LABELS: { ADULT: '26-40', YOUNG_ADULT: '18-25' },
-  GENDER_LABELS_SHORT: { MALE: 'M', FEMALE: 'W', PREFER_NOT_SAY: '-' },
-  RESIDENT_STATUS_LABELS: { ACTIVE: 'Aktiv', PLACED: 'Platziert', EXITED: 'Archiviert' },
-  RESIDENT_LIST_LABELS: {
-    allStatus: 'Alle Status',
-    searchPlaceholder: 'Bewohner suchen...',
-    statusFilter: 'Status',
-    emptyDefault: 'Noch keine Bewohner vorhanden',
-    emptyFiltered: 'Keine Bewohner für diese Filter',
-    notPlaced: 'Nicht platziert',
-    filterReset: 'Filter zurücksetzen',
-    recentIncidentsSuffix: 'Vorfälle',
-  },
-  LANGUAGE_LABELS: { de: 'Deutsch', en: 'Englisch' },
-  getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
-}))
+/**
+ * The label mock SPREADS the real map rather than retyping it.
+ *
+ * It used to be a hand-written copy of `RESIDENT_LIST_LABELS`, and a copy goes
+ * stale the moment a key is added: `placeholder` landed in the real file, this
+ * object did not have it, and the component rendered `undefined` — an empty
+ * span, no marker, no error. The test failed for a reason that had nothing to
+ * do with the code under test.
+ *
+ * Only the few labels whose exact wording these tests assert are overridden,
+ * so shortening them here cannot drift from the product either.
+ */
+vi.mock('@/lib/constants', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/constants')>('@/lib/constants')
+  return {
+    ...actual,
+    AGE_RANGE_LABELS: { ADULT: '26-40', YOUNG_ADULT: '18-25' },
+    GENDER_LABELS_SHORT: { MALE: 'M', FEMALE: 'W', PREFER_NOT_SAY: '-' },
+    RESIDENT_STATUS_LABELS: { ACTIVE: 'Aktiv', PLACED: 'Platziert', EXITED: 'Archiviert' },
+    RESIDENT_LIST_LABELS: {
+      ...actual.RESIDENT_LIST_LABELS,
+      emptyDefault: 'Noch keine Bewohner vorhanden',
+      emptyFiltered: 'Keine Bewohner für diese Filter',
+      notPlaced: 'Nicht platziert',
+      recentIncidentsSuffix: 'Vorfälle',
+    },
+    LANGUAGE_LABELS: { de: 'Deutsch', en: 'Englisch' },
+    getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
+  }
+})
 
 vi.mock('@/lib/utils', async () => ({
   getStatusBadgeClass: (status: string) => `badge-${status.toLowerCase()}`,
@@ -57,6 +70,7 @@ function makeResident(overrides: Partial<ResidentListItem> & { id: string }): Re
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
     displayName: overrides.displayName ?? null,
+    isPlaceholder: overrides.isPlaceholder ?? false,
     ageRange: overrides.ageRange ?? 'ADULT',
     gender: overrides.gender ?? 'PREFER_NOT_SAY',
     status: overrides.status ?? 'ACTIVE',
@@ -151,5 +165,51 @@ describe('ResidentsList', () => {
     )
     expect(screen.getByText('RES-001')).toBeInTheDocument()
     expect(screen.getByText('RES-002')).toBeInTheDocument()
+  })
+})
+
+/**
+ * A seeded profile must never read as a person who needs support.
+ *
+ * Placeholder rows carry a plausible first name and sit in a real flat, so on
+ * this list "Amir" looks exactly like Ihor. Without a marker a Betreuerin could
+ * open a case, record a check-in or chase somebody who does not exist yet —
+ * and the row would keep looking healthy, because a name is a name.
+ *
+ * The marker disappears the moment the code is claimed at /register, because
+ * from then on there IS somebody behind it.
+ */
+describe('placeholder profiles are marked', () => {
+  it('marks a seeded profile', () => {
+    render(
+      <ResidentsList
+        residents={[makeResident({ id: 'p1', displayName: 'Amir', isPlaceholder: true })]}
+      />,
+    )
+    expect(screen.getByText('Platzhalter')).toBeInTheDocument()
+  })
+
+  it('leaves a real client unmarked', () => {
+    render(
+      <ResidentsList
+        residents={[makeResident({ id: 'r1', displayName: 'Ihor', isPlaceholder: false })]}
+      />,
+    )
+    expect(screen.queryByText('Platzhalter')).not.toBeInTheDocument()
+  })
+
+  it('marks only the seeded one when both are listed together', () => {
+    // The realistic screen: one real flat and one seeded flat, side by side.
+    render(
+      <ResidentsList
+        residents={[
+          makeResident({ id: 'r1', displayName: 'Ihor', isPlaceholder: false }),
+          makeResident({ id: 'p1', displayName: 'Amir', isPlaceholder: true }),
+        ]}
+      />,
+    )
+    expect(screen.getAllByText('Platzhalter')).toHaveLength(1)
+    expect(screen.getByText('Ihor')).toBeInTheDocument()
+    expect(screen.getByText('Amir')).toBeInTheDocument()
   })
 })

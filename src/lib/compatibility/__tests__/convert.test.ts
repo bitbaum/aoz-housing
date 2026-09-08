@@ -39,6 +39,8 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     livingSkillsSupport: 'INDEPENDENT',
     interpreterNeed: 'NONE',
     status: 'ACTIVE',
+    // A fixture is a person, not a seeded placeholder.
+    isPlaceholder: false,
     notes: null,
     hasMedicalDocumentation: false,
     medicalDocType: null,

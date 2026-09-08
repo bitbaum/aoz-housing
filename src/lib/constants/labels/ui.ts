@@ -248,6 +248,15 @@ export const RESIDENT_LIST_LABELS = {
   export: 'Exportieren',
   addResident: '+ Klient*in',
   /**
+   * A seeded profile nobody has claimed yet.
+   *
+   * "Platzhalter", not "Demo": the row is not a demonstration, it is a real
+   * flat and a real code waiting for the person who will take it over at
+   * /register. Once claimed the marker disappears, because from then on there
+   * is somebody behind it.
+   */
+  placeholder: 'Platzhalter',
+  /**
    * The "not archived" filter tab.
    *
    * NOT "Aktiv", which it used to be — and that word already means a resident

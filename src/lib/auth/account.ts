@@ -161,6 +161,28 @@ async function loadAccount(where: { id: string }): Promise<AccountRow> {
  * Linking is authorised by the account's own password, so holding a stray code
  * is not enough to attach yourself to someone else's login.
  */
+/**
+ * A seeded profile stops being a placeholder the moment someone claims it.
+ *
+ * Placeholder rows exist so a real person can TAKE ONE OVER — plausible name,
+ * real flat, real code — exactly as a staff account is minted before the
+ * colleague who will use it exists. Registering with that code is the takeover,
+ * and from then on the row is a person's, not a seed's.
+ *
+ * This has to run on EVERY successful resident claim, which is why it is a
+ * helper rather than a line inside one branch: `registerAccount` succeeds down
+ * three paths (link to an existing account, finish an unclaimed one, create a
+ * new one) and a claim through the wrong branch would leave a real client
+ * flagged as fictional — excluded from the caseload KPIs, and marked
+ * "Platzhalter" on a staff screen next to their own name.
+ *
+ * Idempotent, and a no-op for staff: only a resident row carries the flag.
+ */
+async function clearPlaceholderFlag(identity: { kind: string; id: string }): Promise<void> {
+  if (identity.kind !== 'resident') return
+  await db.update(resident).set({ isPlaceholder: false }).where(eq(resident.id, identity.id))
+}
+
 export async function registerAccount(input: {
   code: string
   email: string
@@ -215,6 +237,8 @@ export async function registerAccount(input: {
       await sendVerificationEmail(accountForEmail.id, email)
     }
 
+    await clearPlaceholderFlag(identity)
+
     return {
       success: true,
       identities: toIdentities(await loadAccount({ id: accountForEmail.id })),
@@ -237,6 +261,7 @@ export async function registerAccount(input: {
           .returning({ id: account.id })
       )[0].id
 
+  await clearPlaceholderFlag(identity)
   await sendVerificationEmail(accountId, email)
 
   return { success: true, identities: toIdentities(await loadAccount({ id: accountId })) }

@@ -1371,53 +1371,67 @@ Resend (`lib/email/service.ts`), fleet key, sender on the verified
 password-reset flow REFUSES loudly (see above). Absolute links come from
 `NEXT_PUBLIC_APP_URL` (`lib/config/app-url.ts`).
 
-### Demo Access (fleet standard: no-account product tour)
+### Demo Access — no invented people, and every profile claimable
 
-The demo is **not a separate product** — it is the real tool behind a door
-that needs no account. SSOT: `src/lib/demo/` (config, one shared narrative,
-two reset scopes).
+⚠️ **The fabricated demo world was DELETED from production on 2026-09-08**, and
+this section used to describe it in detail. Read what follows as the current
+design; the old one is gone, not merely deprecated.
 
-- **One demo world, one narrative**: BOTH scopes seed the same AOZ
-  presentation narrative (`lib/demo/seed-data.ts`: 5 units, 15 residents,
-  incidents, expenses — the full placement story). Every code it creates
-  carries a demo prefix (`DEMO-` units, `RES-DEMO` residents; pinned by
-  `seed-data.test.ts`) — an unprefixed code would leak a row the scoped
-  reset can never clean up. The demo resident login is Fatima, PLACED in the
-  success unit, so the portal tour shows a lived-in flat with expenses.
-- **An empty page reads as a missing feature.** `lib/demo/seed-governance.ts`
-  fills the surfaces that shipped blank — chores (with an uneven completion
-  record, because an even one shows nothing), maintenance, and proposals at
-  every stage. **The proposal timing is the load-bearing part**: voting opens
-  only after a 3-day discussion window and the demo world is wiped nightly, so
-  a proposal created fresh can *never* reach a ballot in a demo. The seeded
-  vote is therefore backdated and already open, with one seat deliberately
-  empty — the visitor casts the deciding vote. Outcome text comes from the real
-  `tallyVotes()`; a demo that explains a result differently from the product is
-  a demo of something that does not exist.
+**What was removed and why.** `lib/demo/seed-data.ts` invented 15 residents in
+5 `DEMO-` units with incidents, expenses and a governance narrative, truncated
+and re-seeded nightly at 04:05. Measured on the live database that morning:
+**fabricated rows outnumbered real ones three to one** (15 residents vs 5, 5
+units vs 118, 13 placements vs 4, 7 incidents vs 1). George's instruction was
+"no fake data anytime anywhere". The rows were deleted in one transaction and
+the `appcron-aoz-wohnen-reset-demo.timer` stopped and disabled, because
+deleting seeded data while its re-seeding timer is armed buys you one night.
+
+**What replaced it: CLAIMABLE PLACEHOLDER PROFILES.** The point of the old demo
+was a lived-in flat to look at. The point of the new one is a flat somebody can
+MOVE INTO. Seeded profiles carry a plausible first name and a real login code,
+sit in real AOZ stock, and are marked `Resident.isPlaceholder`. When the person
+who actually arrives registers with that code at `/register`, the flag clears
+and the profile — with its placement, its flat and its history — is theirs.
+Exactly the staff shape: the code is minted first, the human arrives later.
+
+- **Real addresses, placeholder people.** `scripts/db/real/witikonerstrasse-426.ts`
+  activates `WIT-426-01` and `WIT-426-03`, rows already in the database from
+  AOZ's own stock import. Nothing invents an address. Seeded by
+  `scripts/db/seed-placeholders.ts`, which REFUSES any flat holding a
+  non-placeholder resident — real clients are never in a seed script's blast
+  radius.
+- **Neutral factors, always.** Not one seeded preference is a statement about
+  anybody. Inventing that a placeholder sleeps lightly would feed fiction into
+  the compatibility algorithm and back out as a recommendation staff act on.
+- **A bed is left free on purpose.** A flat seeded to exactly full cannot
+  demonstrate placing anyone, which is the product's whole subject.
+- **`isPlaceholder` is PROVENANCE, not "has no account."** Ihor, Misha, Alex and
+  Julia are real clients who have never registered; deriving personhood from an
+  `Account` would erase four of the five people actually being served. The flag
+  is set when the row is created and cleared when the code is claimed.
+- **Every KPI excludes them** (`lib/analytics/real-data.ts`). This matters in a
+  direction that is easy to miss: a seeded profile nobody is serving reads as a
+  client with no labour-market contact and no German level recorded, so the
+  more placeholders exist to show the product off, the WORSE the service looks
+  in the numbers it is judged on.
+- **Staff see "Platzhalter"** beside the name. Without it "Amir" reads exactly
+  like Ihor on the same list, and a Betreuerin could open a case for somebody
+  who does not exist yet.
 - **Server-driven buttons**: the login page asks `GET /api/auth/demo` which
-  doors exist; there is **no build-time flag**, so one build serves any demo
-  configuration and a button only appears when pressing it can succeed.
+  doors exist; there is **no build-time flag**, so a button appears only when
+  pressing it can succeed. When the fabricated residents were deleted the
+  resident door removed itself, with no code change — the design working.
 - **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server env only).
-- **Two reset scopes** (`DEMO_RESET_SCOPE`, default `unit`):
-  - **`unit` (default, safe)** — the demo world lives ALONGSIDE real data;
-    the portal's unit scoping isolates it. The daily reset deletes by
-    PREFIX, never by table, in explicit Restrict-FK order (incidents →
-    placements → units → `RES-DEMO*` residents; `lib/demo/scoped-reset.ts`)
-    — it can never truncate. This is what runs on the live instance.
-  - **`full`** — truncate everything except the keep-list, then the same
-    narrative (`lib/demo/reset.ts`). Dedicated demo deployments only.
-- **The staff demo is a full ADMIN session** (dedicated account, upserted by
-  every reset). George explicitly wants testers to see the Verwaltung side,
-  so the live instance runs `DEMO_STAFF_CODE=WG-DEMO01` — accepted trade-off:
-  demo admins can see/edit the real flat's data. Sessions of deactivated
-  users die immediately: `getCurrentUser()` re-checks `User.active` on every
-  request.
-- **Reset endpoint**: `POST /api/cron/reset-demo` (Bearer `CRON_SECRET`),
-  refuses without `DEMO_ACCESS_ENABLED=true`, advisory-locked. Timer:
-  `appcron-aoz-wohnen-reset-demo.timer` (04:05 UTC).
-- Live instance since 2026-08-13: real data (Witikonerstrasse 458) + both
-  demo doors (`WG-DEMO01` staff, `RES-DEMO1` resident = Fatima in the demo
-  success unit), scope `unit`.
+- **The staff demo is a full ADMIN session** (`DEMO_STAFF_CODE=WG-DEMO01`).
+  George explicitly wants testers to see the Verwaltung side — accepted
+  trade-off: demo admins can see and edit the real flat's data. Sessions of
+  deactivated users die immediately (`getCurrentUser()` re-checks `User.active`).
+- **⚠️ The resident door is OFF, and turning it on is a consent decision, not a
+  config one.** It is an anonymous, no-account login: pointing it at any real
+  client publishes that person's flat, roommates, expenses and reports to
+  whoever clicks. Four of the five live clients are not George. Setting
+  `DEMO_RESIDENT_CODE` to a placeholder's code is safe; setting it to a real
+  client's code needs that client's agreement first.
 
 ### Resident Portal
 
