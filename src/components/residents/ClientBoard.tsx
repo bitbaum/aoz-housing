@@ -32,7 +32,7 @@ import {
   TriangleAlert,
   CheckCircle2,
 } from 'lucide-react'
-import { GENDER_LABELS_SHORT, getLabel } from '@/lib/constants'
+import { GENDER_LABELS_SHORT, RESIDENT_LIST_LABELS, getLabel } from '@/lib/constants'
 import { SUPPORT_LEVEL_LABELS, CLIENT_BOARD_LABELS } from '@/lib/constants/labels/residents'
 import { CARE_ROLE_LABELS, type CareRoleId } from '@/lib/config/care'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
@@ -46,6 +46,8 @@ export interface ClientBoardItem {
   id: string
   code: string
   displayName: string | null
+  /** Required, like `displayName`. See ResidentsList for the reasoning. */
+  isPlaceholder: boolean
   ageRange: string
   gender: string
   status: string
@@ -336,8 +338,18 @@ function ClientCard({ client, viewerRole }: { client: ClientBoardItem; viewerRol
           {residentInitials(client)}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ui-text group-hover:text-brand-primary leading-tight">
-            {residentName(client)}
+          <p className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-ui-text group-hover:text-brand-primary leading-tight">
+            <span className="truncate">{residentName(client)}</span>
+            {/*
+              THIS BOARD IS THE DEFAULT VIEW (`layout || 'board'`), so this is
+              the marker that actually gets seen. It was added to ResidentsList
+              first and verified on the live site — where it did not appear,
+              because the list is the OTHER view, reachable only via
+              ?layout=list. A marker on the screen nobody opens is no marker.
+            */}
+            {client.isPlaceholder && (
+              <span className="chip-neutral shrink-0">{RESIDENT_LIST_LABELS.placeholder}</span>
+            )}
           </p>
           {/* Without a chosen name, residentName() already shows the code —
               repeating it as a subtitle printed the same string twice. */}

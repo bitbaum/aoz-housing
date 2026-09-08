@@ -217,6 +217,12 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       id: r.id,
       code: r.code,
       displayName: r.displayName,
+      // Carried through by hand because the map above casts to `any[]`, which
+      // switches off exactly the protection `isPlaceholder: boolean` was made
+      // required for. The marker was added to ResidentsList, type-checked
+      // green, and still did not appear on the live site — this board is the
+      // DEFAULT view and the cast let it through without the field.
+      isPlaceholder: r.isPlaceholder,
       ageRange: r.ageRange,
       gender: r.gender,
       status: r.status,
