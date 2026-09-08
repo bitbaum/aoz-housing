@@ -8,13 +8,20 @@
  * 3. The AOZ rule catalog (idempotent reconcile — the feature is inert without it)
  * 4. House decisions whose discussion/voting window has elapsed, and conflict
  *    agreements whose review date passed without anyone checking them
+ * 5. Insurances and permits crossing a renewal milestone
  */
 import { BRAND } from '@/lib/config/brand'
 
 import { NextResponse } from 'next/server'
 import { db, incident, placement, satisfactionCheckIn } from '@/lib/db'
 import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
-import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
+import {
+  notifyStaff,
+  incidentFollowUpReminder,
+  checkInReminder,
+  renewalReminder,
+} from '@/lib/email'
+import { expiringFacts, isMilestoneDay } from '@/lib/client-facts/renewals'
 import { logger } from '@/lib/logger'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
@@ -62,6 +69,7 @@ export async function GET(request: Request) {
     proposalsOpened: 0,
     proposalsClosed: 0,
     agreementsExpired: 0,
+    renewals: 0,
     errors: [] as string[],
   }
 
@@ -124,6 +132,30 @@ export async function GET(request: Request) {
       const template = checkInReminder(overdueResidents)
       const sent = await notifyStaff(template.subject, template.html)
       if (sent) results.checkIns = overdueResidents.length
+    }
+
+    // 2b. Insurances and permits crossing a renewal milestone.
+    //
+    // The original complaint this whole feature answers is "my insurance has to
+    // be extended every six months, and for that I need to write Franziska."
+    // Recording the date let a client SEE it and put it on two staff pages —
+    // but a date only prevents a lapse if it reaches someone who is not
+    // already looking. `isMilestoneDay` was written for exactly this daily
+    // check and, until now, was called by nothing: the cooldown rule for a
+    // reminder that never fired.
+    //
+    // REJECTED facts are skipped. A staff member who rejected an entry has
+    // said it is wrong; nagging about its expiry date is nagging about a date
+    // nobody believes.
+    const dueFacts = (await expiringFacts(new Date())).filter(
+      (fact) => fact.status !== 'REJECTED' && isMilestoneDay(fact.daysLeft),
+    )
+
+    if (dueFacts.length > 0) {
+      const soonest = Math.min(...dueFacts.map((fact) => fact.daysLeft))
+      const template = renewalReminder(dueFacts.length, soonest)
+      const sent = await notifyStaff(template.subject, template.html)
+      if (sent) results.renewals = dueFacts.length
     }
     // 3. Reconcile the AOZ rule catalog. Reference data, not demo data: without
     // it the whole rules feature is inert (no topics to legislate on, an empty

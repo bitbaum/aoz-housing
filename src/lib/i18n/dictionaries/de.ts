@@ -458,7 +458,11 @@ export const de = {
   'dashboard.taskSingular': 'Aufgabe',
   'dashboard.taskPlural': 'Aufgaben',
   'dashboard.quickPreferences': 'Präferenzen',
-  'dashboard.nextDesc': 'Nächste Aufgabe',
+  // The quiet-day half of the "Jetzt" card. It replaced 'dashboard.nextDesc'
+  // ("Nächste Aufgabe"), which was shown above a link to the preferences form
+  // whenever nothing was open — announcing a task that did not exist.
+  'dashboard.nothingDue': 'Nichts offen',
+  'dashboard.nothingDueDesc': 'Im Moment ist keine Aufgabe für dich offen.',
   'dashboard.quickReport': 'Melden',
   'dashboard.quickLearning': 'Kurse',
   'dashboard.now': 'Jetzt',

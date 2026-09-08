@@ -6,14 +6,23 @@
  * write Franziska." Recording the date lets a client SEE it; this is what
  * makes the date reach the person who can act before it lapses.
  *
- * ⚠️ THIS IS IN-APP, NOT EMAIL, and that was forced by the deployment rather
- * than chosen for convenience. `STAFF_EMAIL_RECIPIENTS` is unset on the live
- * box, so `notifyStaff()` returns false without sending — every staff email
- * this product composes today reaches nobody. Staff also have no accounts, so
- * there is no per-person address to fall back on. A reminder mailed into that
- * is a reminder that does not exist, which is the failure this whole area of
- * the codebase keeps producing. The four people who use this product open it
- * daily; the surface they open is where the reminder belongs.
+ * IT IS BOTH IN-APP AND EMAIL, and the split is not arbitrary.
+ *
+ * In-app is the detail: `expiringFacts` feeds the dashboard and the approvals
+ * queue, where `mayReadFact` decides per signed-in person which facts they may
+ * see at all. Email is a POINTER ONLY — a count and a link — because
+ * `notifyStaff` writes to one shared address and cannot honour that policy.
+ * See `renewalReminder` in `lib/email/templates.ts`.
+ *
+ * ⚠️ The email half was DEFERRED, then forgotten, and this comment is why it
+ * is worth recording. The original version of this file argued that email was
+ * impossible here: `STAFF_EMAIL_RECIPIENTS` was unset on the live box, so
+ * `notifyStaff()` returned false without sending. That was true when written
+ * and stopped being true the same week, when the variable was set and delivery
+ * verified. What survived was `isMilestoneDay` — exported, tested, and called
+ * by nothing, the cooldown rule for a reminder that never fired. A constraint
+ * written into a comment outlives the constraint itself; when the blocker is
+ * an environment variable, say so where someone will trip over it.
  */
 
 import { and, isNotNull, lte } from 'drizzle-orm'

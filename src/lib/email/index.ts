@@ -10,5 +10,6 @@ export {
   newTransferRequestNotification,
   newIncidentNotification,
   newMaintenanceRequestNotification,
+  renewalReminder,
 } from './templates'
 export { EMAIL_CONFIG } from './config'
