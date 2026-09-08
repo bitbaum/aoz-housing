@@ -14,7 +14,16 @@ import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
  * from the day the role was added. Pinned by `role-labels.test.ts`.
  */
 export const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Leitung',
+  // NOT "Leitung". ADMIN is the retired role, kept only so live JWTs and
+  // existing rows resolve; what it actually grants is ALL_DOMAINS scope plus
+  // isSystemAdmin — reconfiguring the product. "Leitung" names an
+  // organisational rank AOZ genuinely has (it was recruiting a
+  // Programmleiter*in and a Teamleiter*in Betreuung), and a Teamleiter*in
+  // Betreuung is deliberately expressible WITHOUT this role: BETREUUNG +
+  // ALL_DOMAINS + NOT isSystemAdmin. Labelling ADMIN "Leitung" claimed the
+  // rank for the one role that does not confer it, and quietly undercut the
+  // three-axis split that exists precisely to avoid a LEITUNG enum value.
+  ADMIN: 'Systemadministration',
   BETREUUNG: 'Betreuung',
   SOZIALARBEIT: 'Sozialarbeit',
   JOBCOACH: 'Jobcoach',

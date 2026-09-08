@@ -43,6 +43,33 @@ describe('every staff role has a German label', () => {
   })
 })
 
+describe('a label does not claim a rank the role does not confer', () => {
+  it('does not call ADMIN "Leitung"', () => {
+    // ADMIN is RETIRED — kept so live JWTs and existing rows resolve. What it
+    // grants is ALL_DOMAINS scope plus isSystemAdmin: reconfiguring the
+    // product. "Leitung" names an organisational rank AOZ genuinely has; this
+    // file used to hand that word to the one role that does not confer it,
+    // including on the public login page.
+    //
+    // It also undercut the three-axis split. A Teamleiter*in Betreuung is
+    // deliberately expressible WITHOUT this role — BETREUUNG + ALL_DOMAINS +
+    // NOT isSystemAdmin — which is the whole reason there is no LEITUNG enum
+    // value. Calling ADMIN "Leitung" quietly reintroduced the thing the split
+    // exists to avoid.
+    expect(ROLE_LABELS.ADMIN).not.toBe('Leitung')
+  })
+
+  it('reserves the word entirely', () => {
+    // Any role, not just ADMIN. Leading a care team is reach over that team's
+    // clients, never the right to reconfigure the product, so no single label
+    // in this map can honestly carry it.
+    const claiming = Object.entries(ROLE_LABELS)
+      .filter(([, label]) => /leitung/i.test(label))
+      .map(([role]) => role)
+    expect(claiming).toEqual([])
+  })
+})
+
 describe('every scope has a German label', () => {
   it.each(STAFF_SCOPES)('%s', (scope) => {
     const label = SCOPE_LABELS[scope]

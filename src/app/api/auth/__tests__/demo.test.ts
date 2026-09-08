@@ -266,7 +266,14 @@ describe('POST /api/auth/demo', () => {
       const body = await (await GET()).json()
       const labels = body.data.doors.map((door: { label: string }) => door.label)
 
-      expect(labels).toEqual(expect.arrayContaining(['Leitung', 'Betreuung', 'Jobcoach']))
+      // 'Systemadministration', not 'Leitung'. This assertion used to pin the
+      // old ADMIN label, which named an organisational rank AOZ genuinely has
+      // for the one role that does not confer it — see role-labels.test.ts.
+      // The rule the test is really about is that a door never shows a raw
+      // enum value; the specific words come from ROLE_LABELS.
+      expect(labels).toEqual(
+        expect.arrayContaining(['Systemadministration', 'Betreuung', 'Jobcoach']),
+      )
       expect(labels.every((label: string) => label === label.trim() && label.length > 0)).toBe(true)
       expect(labels).not.toContain('FREIWILLIGENARBEIT')
     })
