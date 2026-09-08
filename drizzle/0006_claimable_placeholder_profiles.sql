@@ -1,0 +1,1 @@
+ALTER TABLE "Resident" ADD COLUMN "isPlaceholder" boolean DEFAULT false NOT NULL;

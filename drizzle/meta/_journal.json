@@ -43,6 +43,13 @@
       "when": 1788754217206,
       "tag": "0005_client_managed_admin_facts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788886846856,
+      "tag": "0006_claimable_placeholder_profiles",
+      "breakpoints": true
     }
   ]
 }

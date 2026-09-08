@@ -1110,6 +1110,31 @@ export const resident = pgTable(
     interpreterNeed: interpreterNeed().default('NONE').notNull(),
     roommatePreferences: text(),
     status: residentStatus().default('ACTIVE').notNull(),
+    /**
+     * Is there a real human behind this row yet?
+     *
+     * A placeholder is a seeded profile with a plausible name, waiting for the
+     * person who will TAKE IT OVER — the same shape as a staff account, where
+     * the code is minted first and claimed later at /register. Registering with
+     * a placeholder's code clears this flag: the profile is then that person's.
+     *
+     * WHY IT IS PROVENANCE AND NOT "unclaimed". Deriving it from "has no
+     * Account" would be wrong in the direction that matters: Ihor, Misha, Alex
+     * and Julia are real clients who have never registered, and excluding them
+     * would under-report the caseload the pilot is judged on. Placeholder-ness
+     * is decided when the row is CREATED, not by what the person has done since.
+     *
+     * WHY IT IS NOT A `residentStatus` VALUE. That enum is the placement
+     * lifecycle (ACTIVE/PLACED/TRANSFERRED/EXITED). Folding "is this a person"
+     * into it would make one field mean two things — the exact defect already
+     * fixed once when "Aktiv" meant both "employed here" and "living here".
+     *
+     * Every KPI must exclude these (`lib/analytics/real-data.ts`). A seeded
+     * profile nobody is serving counts as a client with no labour-market
+     * contact, which is how a demo quietly makes the service look worse than
+     * it is — the same class as demo rows entering the pilot numbers.
+     */
+    isPlaceholder: boolean().default(false).notNull(),
     notes: text(),
     hasMedicalDocumentation: boolean().default(false).notNull(),
     medicalDocType: medicalDocType(),

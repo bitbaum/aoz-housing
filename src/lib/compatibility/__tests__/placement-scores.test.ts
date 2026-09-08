@@ -59,6 +59,8 @@ function makeResident(overrides: Partial<Resident> = {}): Resident {
     roommatePreferences: null,
     preferencesCompletedAt: null,
     status: 'ACTIVE',
+    // A fixture is a person, not a seeded placeholder.
+    isPlaceholder: false,
     notes: null,
     hasMedicalDocumentation: false,
     medicalDocType: null,

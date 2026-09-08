@@ -19,6 +19,13 @@ export interface ResidentListItem {
   id: string
   code: string
   displayName: string | null
+  /**
+   * REQUIRED, for the same reason `displayName` is: a missing field means the
+   * query never asked, and the fallback would then quietly present a seeded
+   * profile as a client. Marking it optional would let any list forget to
+   * select it and still compile.
+   */
+  isPlaceholder: boolean
   ageRange: string
   gender: string
   status: string
@@ -74,8 +81,20 @@ function ResidentRow({ resident, canWrite }: { resident: ResidentListItem; canWr
             {residentInitials(resident)}
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-semibold text-ui-text group-hover:text-brand-primary">
-              {residentName(resident)}
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="truncate font-semibold text-ui-text group-hover:text-brand-primary">
+                {residentName(resident)}
+              </span>
+              {/*
+                A seeded profile waiting to be claimed must never be mistaken
+                for someone who needs support. Without this, "Amir" reads
+                exactly like Ihor on the same screen, and a Betreuerin could
+                open a case, record a check-in, or chase a person who does not
+                exist yet.
+              */}
+              {resident.isPlaceholder && (
+                <span className="chip-neutral shrink-0">{RESIDENT_LIST_LABELS.placeholder}</span>
+              )}
             </span>
             <span className="block truncate text-sm text-ui-muted">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}

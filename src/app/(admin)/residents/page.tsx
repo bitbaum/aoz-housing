@@ -104,6 +104,14 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           supportLevel: true,
           languages: true,
           createdAt: true,
+          // Selected EXPLICITLY, and the compiler is not the reason it is
+          // here: drizzle's relational result types are degraded by the
+          // schema's circular table references, so omitting this column type
+          // -checks cleanly and then renders `undefined` — falsy — hiding the
+          // "Platzhalter" marker on every seeded row while looking perfectly
+          // healthy. Same shape as the under-selection bug that printed a
+          // client's code instead of their name.
+          isPlaceholder: true,
         },
         with: {
           placements: {
