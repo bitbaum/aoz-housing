@@ -7,7 +7,24 @@ import { PROFILE_LIMITS } from '@/lib/config/profile'
 import { useT } from '@/lib/i18n/LocaleProvider'
 import { buildApartmentLabels } from '@/lib/i18n/portal-surfaces'
 
-/** Inline editor for the resident-chosen apartment name (e.g. "Singapur"). */
+/**
+ * Inline editor for the resident-chosen apartment name (e.g. "Singapur").
+ *
+ * ⚠️ THIS RENDERED NOWHERE. It was built for `/portal/apartment`, and when that
+ * page was retired to a redirect ("the apartment diagram had no profiles behind
+ * the names") its editor was left behind — the other half of a pair, deleted
+ * halfway. `PATCH /api/portal/apartment` kept working the whole time: guarded,
+ * validated, audited, and reachable by nothing a resident could press.
+ *
+ * So the portal SHOWED "Singapur" at the top of the housing card and offered no
+ * way to change it, while CLAUDE.md went on documenting that any current
+ * resident may set it. It now lives on the card that displays the name, which
+ * is where someone looking to change it would actually go.
+ *
+ * The heading is an `h2` sized for that card rather than the page title it used
+ * to be — it sits under the portal's `h1`, and skipping a level to keep the old
+ * `text-2xl` would trade a real accessibility rule for nothing.
+ */
 export function ApartmentNameEditor({ nickname }: { nickname: string | null }) {
   const router = useRouter()
   const t = useT()
@@ -44,9 +61,9 @@ export function ApartmentNameEditor({ nickname }: { nickname: string | null }) {
   if (!editing) {
     return (
       <div className="flex items-center gap-2">
-        <p className="text-2xl font-bold tracking-tight text-ui-text">
+        <h2 className="text-lg font-semibold text-ui-text">
           {nickname || <span className="text-ui-muted font-normal">{L.unnamed}</span>}
-        </p>
+        </h2>
         <button
           type="button"
           onClick={() => {

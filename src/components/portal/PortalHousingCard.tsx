@@ -1,10 +1,19 @@
 import Link from 'next/link'
 import { getRequestTranslator } from '@/lib/i18n/request'
 import { formatDate } from '@/lib/utils'
+import { ApartmentNameEditor } from './ApartmentNameEditor'
 
 interface HousingUnitData {
   address: string | null
-  nickname?: string | null
+  /**
+   * REQUIRED, not `nickname?:`. Same rule as `NamedResident.displayName` and
+   * for the same reason (`lib/utils/unit-name.ts` states it): `null` means the
+   * residents have not named this flat, a MISSING field means the query never
+   * asked. Those are different facts, and while this was optional a query that
+   * forgot to select it still type-checked — and rendered the generic
+   * "Unterkunft" over a flat that had a name.
+   */
+  nickname: string | null
   totalRooms: number | null
   quietHours: string | null
   smokingAllowed: boolean | null
@@ -33,9 +42,14 @@ export async function PortalHousingCard({
     <div className="card mb-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-ui-text">
-            {housingUnit?.nickname || t('dashboard.housing')}
-          </h2>
+          {/*
+            The name is EDITABLE here, because this is where it is shown. The
+            editor existed all along and was rendered nowhere: it belonged to
+            /portal/apartment, which is now a redirect. Displaying a name a
+            resident cannot change — while the API to change it sits guarded,
+            audited and unreachable — is the whole defect.
+          */}
+          <ApartmentNameEditor nickname={housingUnit?.nickname ?? null} />
           <p className="text-ui-muted">{housingUnit?.address}</p>
         </div>
         <span className="badge badge-active">{t('dashboard.active')}</span>
