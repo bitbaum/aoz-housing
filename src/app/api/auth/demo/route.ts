@@ -54,9 +54,24 @@ async function availableDoors(): Promise<DemoDoor[]> {
   if (residentCode) {
     const residentRow = await db.query.resident.findFirst({
       where: eq(resident.code, residentCode),
-      columns: { id: true },
+      columns: { id: true, isPlaceholder: true },
     })
-    if (residentRow) doors.push({ id: 'resident', label: residentDoorLabel() })
+    // ⚠️ THE DOOR DIES THE MOMENT THE PROFILE IS CLAIMED, and this is the
+    // whole point of the check.
+    //
+    // This is an ANONYMOUS, no-account login. Pointing it at a placeholder is
+    // safe: nobody is behind that profile yet. But a placeholder exists in
+    // order to be TAKEN OVER, and the day the person who moves in registers
+    // with that code, the row stops being a placeholder and becomes theirs —
+    // same id, same code, same `DEMO_RESIDENT_CODE`. Without this condition,
+    // the public door would silently turn into a door onto a real client's
+    // flat, roommates, expenses and reports. No config would have changed, no
+    // error would fire, and the button would keep working perfectly.
+    //
+    // Config discipline cannot prevent that, because the event that causes it
+    // is a resident registering — something nobody is watching the env var
+    // for. So the guard is in code and reads the same fact the marker does.
+    if (residentRow?.isPlaceholder) doors.push({ id: 'resident', label: residentDoorLabel() })
   }
 
   return doors

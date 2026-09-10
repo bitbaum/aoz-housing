@@ -106,7 +106,9 @@ describe('POST /api/auth/demo', () => {
     mockUserFindMany.mockImplementation(async () =>
       demoStaffDoors().map((door) => ({ code: door.code })),
     )
-    mockResidentFindFirst.mockResolvedValue({ id: 'demo-resident-id' })
+    // isPlaceholder MATTERS now: the resident door opens only while the
+    // profile is still a placeholder, so a claimed one closes it.
+    mockResidentFindFirst.mockResolvedValue({ id: 'demo-resident-id', isPlaceholder: true })
   })
 
   afterEach(() => {
@@ -297,5 +299,62 @@ describe('POST /api/auth/demo', () => {
       const body = await (await GET()).json()
       expect(body.data).toEqual({ doors: [], staff: false, resident: false })
     })
+  })
+})
+
+/**
+ * The anonymous door dies the moment its profile is claimed.
+ *
+ * `DEMO_RESIDENT_CODE` points at a PLACEHOLDER — a seeded profile with nobody
+ * behind it. That is what makes a no-account public login acceptable at all.
+ *
+ * But a placeholder exists in order to be TAKEN OVER. The day the person who
+ * moves in registers with that code, `isPlaceholder` clears and the row becomes
+ * theirs: same id, same code, same env var. Without this check the public door
+ * would silently become a door onto a real client's flat, roommates, expenses
+ * and reports — no config changed, no error raised, the button still working.
+ *
+ * Config discipline cannot prevent it, because the event that causes it is a
+ * resident registering, and nobody is watching an env var for that. So the
+ * guard reads the same fact the "Platzhalter" marker does.
+ */
+describe('the resident door and a claimed profile', () => {
+  beforeEach(() => {
+    process.env.DEMO_ACCESS_ENABLED = 'true'
+    process.env.DEMO_RESIDENT_CODE = RESIDENT_CODE
+    mockCheckRateLimit.mockReturnValue({ allowed: true })
+  })
+
+  it('is offered while the profile is an unclaimed placeholder', async () => {
+    mockResidentFindFirst.mockResolvedValue({ id: 'r1', isPlaceholder: true })
+    const body = await (await GET()).json()
+    expect(body.data.resident).toBe(true)
+  })
+
+  it('disappears once a real person has claimed it', async () => {
+    mockResidentFindFirst.mockResolvedValue({ id: 'r1', isPlaceholder: false })
+    const body = await (await GET()).json()
+    expect(body.data.resident).toBe(false)
+    expect(body.data.doors.map((d: { id: string }) => d.id)).not.toContain('resident')
+  })
+
+  it('REFUSES the login, not merely the button', async () => {
+    // Hiding a button is not a gate: the POST is the thing that issues a
+    // session, and anyone can send it.
+    mockResidentFindFirst.mockResolvedValue({ id: 'r1', isPlaceholder: false })
+    const request = new NextRequest('http://localhost/api/auth/demo', {
+      method: 'POST',
+      body: JSON.stringify({ role: 'resident' }),
+      headers: { 'content-type': 'application/json' },
+    })
+    const response = await POST(request)
+    expect(response.status).toBe(404)
+    expect(mockSetResidentCookie).not.toHaveBeenCalled()
+  })
+
+  it('still refuses when the profile does not exist at all', async () => {
+    mockResidentFindFirst.mockResolvedValue(null)
+    const body = await (await GET()).json()
+    expect(body.data.resident).toBe(false)
   })
 })
