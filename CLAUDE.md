@@ -10,7 +10,7 @@ last_modified_summary: Two repo-wide rules from posting the first real listing �
 
 ## Where this runs (read before touching the database)
 
-The live product is **https://aoz-wohnen.orangecat.ch** on the Hetzner box
+The live product is **https://aoz.orangecat.ch** on the Hetzner box
 **bitbaum** (`root@167.233.22.31`). App: `/opt/aoz-wohnen/`. Unit:
 `aoz-wohnen-app.service`. Database: **PostgreSQL on that box**,
 `127.0.0.1:5432`, name **`aoz_wohnen`**. Credentials SSOT:
@@ -276,7 +276,7 @@ ssh root@167.233.22.31 \
 gh workflow run deploy.yml -R bitbaum/aoz-housing
 
 # 3. confirm what a user actually sees
-curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
+curl -s https://aoz.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
 ```
 
 - **SSOT**: `src/lib/config/brand.ts`. Every field has a direct visible
@@ -1060,7 +1060,7 @@ profiles.
 once — never committed). `--wipe` converts a demo instance in place. A real
 instance must run with `DEMO_ACCESS_ENABLED=false` and the reset timer
 disabled — the daily demo reset would truncate real data. The production
-instance `aoz-wohnen.orangecat.ch` runs in REAL mode since 2026-08-13
+instance `aoz.orangecat.ch` runs in REAL mode since 2026-08-13
 (Witikonerstrasse 458); the demo remains fully env-switchable for a future
 dedicated demo deployment.
 
