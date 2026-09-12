@@ -5,7 +5,7 @@
     "node": ">=24"
   },
   "private": true,
-  "description": "Support platform for refugee care work: housing stability with compatibility matching, daily-life coordination, conflict resolution, and learning & participation tracking — one system for staff and residents",
+  "description": "Support platform for refugee care work: housing stability with compatibility matching, daily-life coordination, conflict resolution, and learning & participation tracking \u2014 one system for staff and residents",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,7 +25,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@bitbaum/ai-kit": "^0.15.0",
+    "@bitbaum/ai-kit": "^1.4.0",
     "@bitbaum/mail-kit": "^0.1.0",
     "@fleet/ai-forms": "npm:ai-forms@^0.1.2",
     "@paralleldrive/cuid2": "^3.3.0",
